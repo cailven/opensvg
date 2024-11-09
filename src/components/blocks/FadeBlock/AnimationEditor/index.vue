@@ -63,8 +63,8 @@ const tracks = ref([
     duration: 1000,
     calcMode: 'linear',
     keyframes: [
-      { id: 1, trackId: 1, time: 0, value: '0' },
-      { id: 2, trackId: 1, time: 50, value: '1' }
+      { id: 1, trackId: 1, time: 0, value: '0' , isFixed: true},
+      { id: 2, trackId: 1, time: 100, value: '1', isFixed: true, isEndFrame: true }
     ]
   }
 ])
@@ -84,7 +84,10 @@ const addBasicTrack = () => {
     attributeName: 'opacity',
     duration: 1000,
     calcMode: 'linear',
-    keyframes: []
+    keyframes: [
+      { id: Date.now(), trackId: Date.now(), time: 0, value: '0', isFixed: true },
+      { id: Date.now() + 1, trackId: Date.now(), time: 100, value: '1', isFixed: true, isEndFrame: true }
+    ]
   }
   tracks.value.push(newTrack)
 }
@@ -98,7 +101,10 @@ const addTransformTrack = () => {
     transformType: 'translate',
     duration: 1000,
     calcMode: 'linear',
-    keyframes: []
+    keyframes: [
+      { id: Date.now(), trackId: Date.now(), time: 0, value: '0 0', isFixed: true },
+      { id: Date.now() + 1, trackId: Date.now(), time: 100, value: '0 0', isFixed: true, isEndFrame: true }
+    ]
   }
   tracks.value.push(newTrack)
 }
@@ -107,6 +113,9 @@ const addTransformTrack = () => {
 const addKeyframe = (trackId, time) => {
   const track = tracks.value.find(t => t.id === trackId)
   if (!track) return
+
+  // 确保新增帧不会超过100%
+  if (time >= 100) return
 
   const newKeyframe = {
     id: Date.now(),
@@ -223,6 +232,22 @@ const deleteKeyframe = (keyframe) => {
     if (selectedKeyframe.value?.id === keyframe.id) {
       selectedKeyframe.value = null
     }
+  }
+}
+
+// 在处理关键帧数据时添加排序逻辑
+const getAnimationAttributes = (track) => {
+  // 按时间顺序对关键帧进行排序
+  const sortedKeyframes = [...track.keyframes].sort((a, b) => a.time - b.time)
+  
+  // 生成排序后的关键帧时间和值
+  const keyTimes = sortedKeyframes.map(kf => (kf.time / 100).toFixed(4)).join(';')
+  const values = sortedKeyframes.map(kf => kf.value).join(';')
+  
+  return {
+    keyTimes,
+    values,
+    // ... other attributes
   }
 }
 </script>

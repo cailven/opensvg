@@ -14,6 +14,7 @@
               step="1"
               min="0"
               max="100"
+              :disabled="localKeyframe.isFixed"
               @change="updateKeyframe"
             >
             <span class="unit">%</span>
@@ -61,6 +62,7 @@
               <input 
                 type="number" 
                 v-model.number="transformValues[0]"
+                :disabled="localKeyframe.isFixed"
                 @change="updateTransformValue"
               >
             </div>
@@ -69,6 +71,7 @@
               <input 
                 type="number" 
                 v-model.number="transformValues[1]"
+                :disabled="localKeyframe.isFixed"
                 @change="updateTransformValue"
               >
             </div>
@@ -81,6 +84,7 @@
                 type="number" 
                 v-model.number="transformValues[0]"
                 step="0.1"
+                :disabled="localKeyframe.isFixed"
                 @change="updateTransformValue"
               >
             </div>
@@ -93,6 +97,7 @@
                 <input 
                   type="number" 
                   v-model.number="transformValues[0]"
+                  :disabled="localKeyframe.isFixed"
                   @change="updateTransformValue"
                 >
                 <span class="unit">°</span>
@@ -106,6 +111,7 @@
           <label>缓动：</label>
           <select 
             v-model="localKeyframe.easing"
+            :disabled="localKeyframe.isFixed"
             @change="updateKeyframe"
           >
             <option value="linear">线性</option>

@@ -74,7 +74,10 @@
             v-for="keyframe in track.keyframes"
             :key="keyframe.id"
             class="keyframe"
-            :class="{ selected: selectedKeyframe?.id === keyframe.id }"
+            :class="{ 
+              selected: selectedKeyframe?.id === keyframe.id,
+              fixed: keyframe.isFixed 
+            }"
             :style="{ left: `${keyframe.time}%` }"
             @click.stop="selectKeyframe(keyframe)"
             @mousedown="startDragKeyframe($event, keyframe)"
@@ -146,7 +149,9 @@ const handleTrackClick = (event, track) => {
   const clickX = event.clientX - rect.left
   const time = (clickX / rect.width) * 100
   
-  emit('add-keyframe', track.id, Math.max(0, Math.min(100, time)))
+  const normalizedTime = Math.max(0, Math.min(100, time))
+  
+  emit('add-keyframe', track.id, normalizedTime)
 }
 
 // 选择关键帧
@@ -156,10 +161,11 @@ const selectKeyframe = (keyframe) => {
 
 // 开始拖拽关键帧
 const startDragKeyframe = (event, keyframe) => {
+  if (keyframe.isFixed || keyframe.isEndFrame) return
+  
   isDragging.value = true
   draggedKeyframe.value = keyframe
   
-  // 获取初始轨道内容区域
   const trackContent = event.currentTarget.parentElement
   const initialRect = trackContent.getBoundingClientRect()
   
@@ -169,7 +175,6 @@ const startDragKeyframe = (event, keyframe) => {
     const track = props.tracks.find(t => t.id === keyframe.trackId)
     if (!track) return
     
-    // 使用初始获取的轨道内容区域
     const moveX = e.clientX - initialRect.left
     const time = Math.max(0, Math.min(100, (moveX / initialRect.width) * 100))
     
@@ -186,11 +191,9 @@ const startDragKeyframe = (event, keyframe) => {
     window.removeEventListener('mouseup', handleMouseUp)
   }
   
-  // 使用 window 而不是 document
   window.addEventListener('mousemove', handleMouseMove)
   window.addEventListener('mouseup', handleMouseUp)
   
-  // 阻止默认事件和冒泡
   event.preventDefault()
   event.stopPropagation()
 }
@@ -200,11 +203,9 @@ const deleteTrack = (trackId) => {
   if (confirm('确定要删除这个动画轨道吗？')) {
     const trackIndex = props.tracks.findIndex(t => t.id === trackId)
     if (trackIndex !== -1) {
-      // 如果删除的轨道包含当前选中的关键帧，清除选中状态
       if (props.selectedKeyframe?.trackId === trackId) {
         emit('select-keyframe', null)
       }
-      // 发出删除轨道的事件
       emit('delete-track', trackId)
     }
   }
@@ -216,7 +217,6 @@ const showKeyframeMenu = (event, keyframe) => {
   showContextMenu.value = true
   selectedForDelete.value = keyframe
   
-  // 计算菜单位置，确保不超出视窗
   const x = Math.min(event.clientX, window.innerWidth - 100)
   const y = Math.min(event.clientY, window.innerHeight - 50)
   
@@ -225,7 +225,6 @@ const showKeyframeMenu = (event, keyframe) => {
     left: `${x}px`
   }
   
-  // 添加一次性点击事件监听器来关闭菜单
   const closeMenu = () => {
     showContextMenu.value = false
     selectedForDelete.value = null
@@ -236,7 +235,7 @@ const showKeyframeMenu = (event, keyframe) => {
 
 // 删除关键帧
 const deleteKeyframe = () => {
-  if (!selectedForDelete.value) return
+  if (!selectedForDelete.value || selectedForDelete.value.isFixed || selectedForDelete.value.isEndFrame) return
   
   const track = props.tracks.find(t => t.id === selectedForDelete.value.trackId)
   if (!track) return
@@ -244,16 +243,13 @@ const deleteKeyframe = () => {
   const keyframeIndex = track.keyframes.findIndex(k => k.id === selectedForDelete.value.id)
   if (keyframeIndex === -1) return
   
-  // 确保至少保留两个关键帧
   if (track.keyframes.length <= 2) {
     alert('动画轨道至少需要保留两个关键帧！')
     return
   }
   
-  // 发出删除关键帧事件
   emit('delete-keyframe', selectedForDelete.value)
   
-  // 如果删除的是当前选中的关键帧，清除选中状态
   if (props.selectedKeyframe?.id === selectedForDelete.value.id) {
     emit('select-keyframe', null)
   }
@@ -376,6 +372,11 @@ const deleteKeyframe = () => {
 .keyframe.selected {
   background: #f5222d;
   border-color: #fff;
+}
+
+.keyframe.fixed {
+  border: 2px solid #ff4d4f;
+  cursor: not-allowed;
 }
 
 .delete-track-btn {

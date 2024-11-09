@@ -18,7 +18,7 @@ import Preview from './components/Preview.vue'
 <style scoped>
 .editor-container {
   display: grid;
-  grid-template-columns: 200px 300px 1fr;
+  grid-template-columns: 200px 350px 1fr;
   gap: 20px;
   height: 100vh;
   padding: 20px;
