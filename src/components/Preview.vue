@@ -10,14 +10,14 @@
             </svg>
           </i>
         </button>
-        <!-- <button class="toolbar-btn" @click="refreshPreview" title="刷新">
+       <button class="toolbar-btn" @click="refreshPreview" title="刷新">
           <i class="icon-refresh">
             <svg viewBox="0 0 1024 1024" width="16" height="16">
               <path d="M512 922.24c-226.88 0-410.24-183.36-410.24-410.24S285.12 101.76 512 101.76c151.25 0 289.28 83.2 360.32 216.32l-89.6 38.4C724.48 245.76 622.72 184.32 512 184.32c-180.48 0-327.68 147.2-327.68 327.68S331.52 839.68 512 839.68s327.68-147.2 327.68-327.68h82.56c0 226.88-183.36 410.24-410.24 410.24z" fill="currentColor"/>
             </svg>
           </i>
         </button>
-        <button class="toolbar-btn" @click="showQRCode" title="手机预览">
+       <!--   <button class="toolbar-btn" @click="showQRCode" title="手机预览">
           <i class="icon-qrcode">
             <svg viewBox="0 0 1024 1024" width="16" height="16">
               <path d="M149.76 149.76v298.24h298.24V149.76H149.76z m234.24 234.24H213.76V213.76h170.24v170.24zM149.76 576v298.24h298.24V576H149.76z m234.24 234.24H213.76v-170.24h170.24v170.24zM576 149.76v298.24h298.24V149.76H576z m234.24 234.24h-170.24V213.76h170.24v170.24zM576 576v85.76h85.76V576H576z m298.24 298.24v-85.76h-85.76v85.76h85.76zM576 746.24v128h128v-128H576z m213.76-85.76v-84.48h-85.76v84.48h85.76z" fill="currentColor"/>
@@ -32,7 +32,7 @@
       <div class="device-frame" :style="{ transform: `scale(${scale})` }">
         <div class="device-notch"></div>
         <div class="device-screen">
-          <div class="preview-area">
+          <div class="preview-area" :key="refreshKey">
             <component
               v-for="comp in topLevelComponents"
               :key="comp.id"
@@ -106,6 +106,7 @@ const deviceWrapper = ref(null)
 const scale = ref(1)
 const showCodeDialog = ref(false)
 const showQRCodeDialog = ref(false)
+const refreshKey = ref(0)
 
 // 设备原始尺寸
 const DEVICE_HEIGHT = 800
@@ -140,8 +141,7 @@ const showCode = () => {
 }
 
 const refreshPreview = () => {
-  // 实现刷新览的逻辑
-  window.location.reload()
+  refreshKey.value++
 }
 
 // 生成微信公众号格式的代码
@@ -324,7 +324,7 @@ const topLevelComponents = computed(() => {
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  padding: 48px 0 20px;
+  padding: 0px 0 20px;
 }
 
 /* 设备按钮 */

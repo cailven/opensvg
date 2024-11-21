@@ -1,23 +1,51 @@
 <template>
   <div class="component-list">
-    <div
-      class="component-item"
-      draggable="true"
-      @dragstart="handleDragStart($event, 'fade')"
-    >
-      无缝图
-    </div>
-    <div
-      class="component-item"
-      draggable="true"
-      @dragstart="handleDragStart($event, 'zeroHeight')"
-    >
-      零高容器
-    </div>
+    <el-card class="component-category" shadow="never">
+      <template #header>
+        <div class="category-header">
+          <el-icon><Grid /></el-icon>
+          <span>可用组件</span>
+        </div>
+      </template>
+      
+      <el-space direction="vertical" fill>
+        <el-card
+          v-for="(config, type) in componentMap"
+          :key="type"
+          class="component-item"
+          shadow="hover"
+          draggable="true"
+          @dragstart="handleDragStart($event, type)"
+        >
+          <div class="item-content">
+            <el-icon>
+              <component :is="getIconComponent(type)" />
+            </el-icon>
+            <span>{{ config.name }}</span>
+          </div>
+        </el-card>
+      </el-space>
+    </el-card>
   </div>
 </template>
 
 <script setup>
+import { Picture, Crop, Switch, ArrowRight, Grid } from '@element-plus/icons-vue'
+import { componentMap } from '../stores/editor'
+
+// 图标映射表
+const iconMap = {
+  fade: Picture,
+  zeroHeight: Crop,
+  clickSwitch: Switch,
+  stretch: ArrowRight
+}
+
+// 获取对应的图标组件
+const getIconComponent = (type) => {
+  return iconMap[type] || Grid // 如果没有对应的图标，使用默认图标
+}
+
 const handleDragStart = (event, type) => {
   event.dataTransfer.setData('componentType', type)
 }
@@ -26,19 +54,43 @@ const handleDragStart = (event, type) => {
 <style scoped>
 .component-list {
   padding: 10px;
+  width: 200px;
+}
+
+.component-category :deep(.el-card__header) {
+  padding: 10px 15px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  color: #606266;
 }
 
 .component-item {
-  padding: 10px;
-  margin-bottom: 8px;
-  background: #f0f2f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
   cursor: move;
-  text-align: center;
+  margin-bottom: 0 !important;
 }
 
 .component-item:hover {
-  background: #e6e8eb;
+  border-color: var(--el-color-primary);
+}
+
+.item-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+:deep(.el-space__item:last-child .component-item) {
+  margin-bottom: 0;
+}
+
+.el-icon {
+  font-size: 16px;
+  color: #909399;
 }
 </style> 

@@ -1,24 +1,65 @@
 <template>
   <div class="app-container">
     <div class="system-header">
-      <div class="auto-save-status">
-        <label class="auto-save-switch">
-          <input 
-            type="checkbox" 
-            :checked="editorStore.autoSaveEnabled"
-            @change="editorStore.toggleAutoSave()"
-          >
-          <span class="switch-slider"></span>
-          自动保存
-        </label>
-        <span v-if="editorStore.lastSaveTime" class="save-time">
-          {{ autoSaveStatus }}
-        </span>
+      <div class="system-logo">
+        <img src="/public/logo.gif" alt="编辑器" />
       </div>
+      
+      <div class="api-status">
+        <template v-if="apiConfig.type === 'api'">
+          <el-tag size="small">
+            <el-icon><Connection /></el-icon>
+            接口地址: {{ apiUrl }}
+          </el-tag>
+        </template>
+        <template v-else-if="apiConfig.type === 'json'">
+          <el-button 
+            type="success" 
+            size="small"
+            @click="toggleMaterialPanel"
+          >
+            <el-icon><Picture /></el-icon>
+            {{ showMaterialPanel ? '隐藏素材库' : '显示素材库' }}
+          </el-button>
+        </template>
+      </div>
+      
       <div class="system-actions">
-        <button class="action-btn" @click="handleNew">新建项目</button>
-        <button class="action-btn" @click="handleSave">保存项目</button>
-        <button class="action-btn" @click="openProject">打开项目</button>
+        <el-button-group>
+          <el-button type="primary" @click="handleNew" :icon="Plus">新建</el-button>
+          <el-button type="primary" @click="handleSave" :icon="Download">保存</el-button>
+          <el-button type="primary" @click="openProject" :icon="Upload">打开</el-button>
+        </el-button-group>
+        <el-divider direction="vertical" />
+        <div class="auto-save-status">
+          <el-switch
+            v-model="editorStore.autoSaveEnabled"
+            @change="editorStore.toggleAutoSave()"
+            active-text="自动保存"
+          />
+          <span v-if="editorStore.lastSaveTime" class="save-time">
+            <el-tag size="small" type="info">
+              {{ autoSaveStatus }}
+            </el-tag>
+          </span>
+        </div>
+        <el-divider direction="vertical" />
+        <el-popover
+          :visible="dropdownVisible"
+          trigger="click"
+          placement="bottom"
+          @hide="dropdownVisible = false"
+        >
+          <template #reference>
+            <el-button @click="dropdownVisible = true" :icon="Setting">系统设置</el-button>
+          </template>
+          <div class="dropdown-menu">
+            <el-button 
+              link 
+              @click="showApiConfig = true; dropdownVisible = false"
+            >配置接口</el-button>
+          </div>
+        </el-popover>
         <input 
           type="file" 
           ref="fileInput"
@@ -26,15 +67,56 @@
           accept=".json"
           @change="handleFileSelect"
         >
-        <span>未登录</span>
-        <a href="#">设置图床</a>
-        <a href="#">系统配置</a>
       </div>
     </div>
-    <div class="editor-container">
-      <ComponentList class="component-list" />
-      <TreeEditor class="tree-editor" />
-      <Preview class="preview" />
+    
+    <div class="main-content">
+      <div 
+        v-if="showMaterialPanel" 
+        class="material-sidebar"
+        :class="{ 'sidebar-collapsed': !showMaterialPanel }"
+      >
+        <div class="sidebar-header">
+          <h3>素材库</h3>
+          <el-input
+            v-model="searchQuery"
+            placeholder="搜索素材"
+            prefix-icon="Search"
+            clearable
+            size="small"
+          />
+        </div>
+        
+        <div class="material-grid">
+          <div 
+            v-for="item in filteredMaterials" 
+            :key="item.url"
+            class="material-item"
+            draggable="true"
+            @dragstart="handleDragStart($event, item)"
+          >
+            <el-image
+              :src="item.url"
+              :preview-src-list="[item.url]"
+              preview-teleported
+              fit="cover"
+            >
+              <template #placeholder>
+                <div class="image-placeholder">
+                  <el-icon><Picture /></el-icon>
+                </div>
+              </template>
+            </el-image>
+            <div class="material-name" :title="item.name">{{ item.name }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="editor-container" :class="{ 'with-sidebar': showMaterialPanel }">
+        <ComponentList class="component-list" />
+        <TreeEditor class="tree-editor" />
+        <Preview class="preview" />
+      </div>
     </div>
   </div>
 
@@ -57,19 +139,141 @@
       </div>
     </div>
   </div>
+
+  <el-dialog
+    v-model="showMaterialDialog"
+    title="素材库预览"
+    width="80%"
+    class="material-dialog"
+  >
+    <el-table
+      :data="materialList"
+      style="width: 100%"
+      height="500"
+      :default-sort="{ prop: 'name' }"
+    >
+      <el-table-column prop="name" label="文件名" sortable width="200" />
+      <el-table-column label="预览" width="120">
+        <template #default="{ row }">
+          <el-image
+            class="material-preview"
+            :src="row.url"
+            :preview-src-list="[row.url]"
+            preview-teleported
+            fit="contain"
+          >
+            <template #placeholder>
+              <div class="image-placeholder">
+                <el-icon><Picture /></el-icon>
+              </div>
+            </template>
+          </el-image>
+        </template>
+      </el-table-column>
+      <el-table-column prop="url" label="素材地址" show-overflow-tooltip>
+        <template #default="{ row }">
+          <div class="url-cell">
+            <span class="url-text">{{ row.url }}</span>
+            <el-button 
+              type="primary" 
+              link
+              @click="copyUrl(row.url)"
+            >复制</el-button>
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
+  </el-dialog>
+
+  <el-dialog
+    v-model="showApiConfig"
+    title="配置微信素材接口"
+    width="500px"
+  >
+    <div class="api-config-form">
+      <el-form :model="apiConfig" label-width="120px">
+        <el-form-item label="接入方式">
+          <el-radio-group v-model="apiConfig.type">
+            <el-radio :value="'api'">接口地址</el-radio>
+            <el-radio :value="'json'">素材库文件</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <!-- 接口地址配置 -->
+        <template v-if="apiConfig.type === 'api'">
+          <el-form-item label="接口地址">
+            <el-input 
+              v-model="apiConfig.url" 
+              placeholder="请输入微信素材接口地址"
+              clearable
+            />
+          </el-form-item>
+        </template>
+
+        <!-- 素材库文件配置 -->
+        <template v-else>
+          <el-form-item label="素材库文件">
+            <div class="json-upload">
+              <input
+                ref="fileInput"
+                type="file"
+                accept=".json"
+                style="display: none"
+                @change="handleFileChange"
+              >
+              <el-button 
+                type="primary" 
+                @click="$refs.fileInput.click()"
+              >
+                选择文件
+              </el-button>
+              <span v-if="selectedFileName" class="file-name">
+                {{ selectedFileName }}
+              </span>
+            </div>
+            <div class="file-tips">
+              1、Json文件来自 https://github.com/cailven/wxuploadChromeWiget
+              2、chrome安装 Referer Control 设置 https://mmbiz.qpic.cn 为 block
+            </div>
+          </el-form-item>
+        </template>
+      </el-form>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="showApiConfig = false">取消</el-button>
+        <el-button type="primary" @click="saveApiConfig">确认</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useEditorStore } from './stores/editor'
 import ComponentList from './components/ComponentList.vue'
 import TreeEditor from './components/TreeEditor.vue'
 import Preview from './components/Preview.vue'
+import { Plus, Download, Upload, Setting, Connection, Delete, Picture, Search } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const editorStore = useEditorStore()
 const fileInput = ref(null)
 const showSaveDialog = ref(false)
 const projectName = ref('')
+const showApiConfig = ref(false)
+const apiConfig = ref({
+  type: 'api', // 默认选择接口方式
+  url: '',
+  jsonFile: null
+})
+const apiUrl = ref('')
+const dropdownVisible = ref(false)
+const showMaterialDialog = ref(false)
+const materialList = ref([])
+const showMaterialPanel = ref(false)
+const searchQuery = ref('')
+const selectedFileName = ref('')
 
 // 计算自动保存状态提示
 const autoSaveStatus = computed(() => {
@@ -146,12 +350,127 @@ const handleFileSelect = (event) => {
 // 处理新建按钮点击
 const handleNew = () => {
   if (editorStore.components.length > 0) {
-    if (confirm('确定要新建项目吗？当前项目的更改可能会丢失。')) {
+    if (confirm('确定新建项目吗？当前项目的更改可能会丢失。')) {
       editorStore.newProject()
     }
   } else {
     editorStore.newProject()
   }
+}
+
+// 处理文件选择
+const handleFileChange = (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  if (!file.name.endsWith('.json')) {
+    ElMessage.error('请选择 JSON 格式的文件')
+    event.target.value = '' // 清空选择
+    selectedFileName.value = ''
+    return
+  }
+  
+  selectedFileName.value = file.name
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const jsonData = JSON.parse(e.target.result)
+      materialList.value = jsonData
+      ElMessage.success('素材库文件解析成功')
+    } catch (err) {
+      ElMessage.error('无效的 JSON 文件格式')
+      event.target.value = '' // 清空选择
+      selectedFileName.value = ''
+    }
+  }
+  reader.readAsText(file)
+}
+
+// 保存配置
+const saveApiConfig = () => {
+  if (apiConfig.value.type === 'api') {
+    if (!apiConfig.value.url) {
+      ElMessage.warning('请输入接口地址')
+      return
+    }
+    apiUrl.value = apiConfig.value.url
+    localStorage.setItem('apiType', 'api')
+    localStorage.setItem('apiUrl', apiUrl.value)
+  } else {
+    if (!selectedFileName.value) {
+      ElMessage.warning('请选择素材库文件')
+      return
+    }
+    localStorage.setItem('apiType', 'json')
+    localStorage.setItem('materialJson', JSON.stringify(materialList.value))
+  }
+  
+  showApiConfig.value = false
+  ElMessage.success('配置已更新')
+}
+
+// 重置文件选择
+const resetFileInput = () => {
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+  selectedFileName.value = ''
+}
+
+// 监听弹窗关闭
+watch(showApiConfig, (newVal) => {
+  if (!newVal) {
+    resetFileInput()
+  }
+})
+
+// 复制URL到剪贴板
+const copyUrl = async (url) => {
+  try {
+    await navigator.clipboard.writeText(url)
+    ElMessage.success('已复制到剪贴板')
+  } catch (err) {
+    ElMessage.error('复制失败')
+  }
+}
+
+// 组件挂载时读取配置
+onMounted(() => {
+  const apiType = localStorage.getItem('apiType')
+  if (apiType === 'api') {
+    const savedApiUrl = localStorage.getItem('apiUrl')
+    if (savedApiUrl) {
+      apiUrl.value = savedApiUrl
+      apiConfig.value.url = savedApiUrl
+      apiConfig.value.type = 'api'
+    }
+  } else if (apiType === 'json') {
+    const materialJson = localStorage.getItem('materialJson')
+    if (materialJson) {
+      apiUrl.value = '使用素材库文件'
+      apiConfig.value.type = 'json'
+    }
+  }
+})
+
+// 切换素材面板显示/隐藏
+const toggleMaterialPanel = () => {
+  showMaterialPanel.value = !showMaterialPanel.value
+}
+
+// 过滤素材列表
+const filteredMaterials = computed(() => {
+  if (!searchQuery.value) return materialList.value
+  const query = searchQuery.value.toLowerCase()
+  return materialList.value.filter(item => 
+    item.name.toLowerCase().includes(query)
+  )
+})
+
+// 处理拖拽开始
+const handleDragStart = (event, material) => {
+  event.dataTransfer.setData('application/json', JSON.stringify(material))
+  event.dataTransfer.effectAllowed = 'copy'
 }
 </script>
 
@@ -170,18 +489,21 @@ html,body {
 
 /* 新增顶部系统栏样式 */
 .system-header {
-  height: 80px;
-  background: #f0f2f5;
+  height: 60px;
+  background: #fff;
   padding: 0 20px;
-  border-bottom: 1px solid #e4e4e4;
+  border-bottom: 1px solid #dcdfe6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
 }
 
 .system-actions {
-  height: 100%;
   display: flex;
   align-items: center;
-  gap: 20px;
-  justify-content: flex-end;
+  gap: 16px;
 }
 
 .system-actions a {
@@ -223,19 +545,10 @@ html,body {
   background: #f5f5f5;
 }
 
-.action-btn {
-  padding: 6px 12px;
-  background: #1890ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 12px;
-  font-size: 13px;
-}
-
-.action-btn:hover {
-  background: #40a9ff;
+.action-btn,
+.auto-save-switch,
+.switch-slider {
+  display: none;
 }
 
 .dialog-overlay {
@@ -310,52 +623,255 @@ html,body {
 .auto-save-status {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.auto-save-switch {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.auto-save-switch input {
-  display: none;
-}
-
-.switch-slider {
-  position: relative;
-  width: 40px;
-  height: 20px;
-  background: #ddd;
-  border-radius: 20px;
-  transition: 0.3s;
-}
-
-.switch-slider:before {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: white;
-  top: 2px;
-  left: 2px;
-  transition: 0.3s;
-}
-
-.auto-save-switch input:checked + .switch-slider {
-  background: #1890ff;
-}
-
-.auto-save-switch input:checked + .switch-slider:before {
-  transform: translateX(20px);
+  gap: 16px;
 }
 
 .save-time {
-  color: #666;
+  color: #909399;
+}
+
+/* 添加 logo 样式 */
+.system-logo {
+  display: flex;
+  align-items: center;
+}
+
+.system-logo img {
+  height: 36px;
+  margin-right: 20px;
+}
+
+.api-status {
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.api-status .el-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.api-config-form {
+  padding: 20px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dropdown-menu {
+  min-width: 120px;
+  padding: 5px 0;
+}
+
+.dropdown-menu .el-button {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 8px 16px;
+}
+
+.material-dialog .el-dialog__body {
+  padding: 20px;
+}
+
+.material-preview {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.material-preview:hover {
+  transform: scale(1.05);
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fa;
+}
+
+.image-placeholder .el-icon {
+  font-size: 24px;
+  color: #909399;
+}
+
+.url-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.url-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 图片查看器样式优化 */
+:deep(.el-image-viewer__wrapper) {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+:deep(.el-image-viewer__img) {
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 拖拽相关样式 */
+.material-preview[draggable="true"] {
+  cursor: move;
+}
+
+.material-preview[draggable="true"]:active {
+  opacity: 0.7;
+}
+
+.api-config-form {
+  padding: 20px;
+}
+
+.json-upload {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.file-name {
+  color: #606266;
+  font-size: 14px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.material-sidebar {
+  width: 280px;
+  background: #fff;
+  border-right: 1px solid #dcdfe6;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s;
+}
+
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid #dcdfe6;
+}
+
+.sidebar-header h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #303133;
+}
+
+.material-grid {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.material-item {
+  position: relative;
+  cursor: move;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f5f7fa;
+  transition: transform 0.2s;
+}
+
+.material-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.material-item .el-image {
+  width: 100%;
+  height: 100px;
+  display: block;
+}
+
+.material-name {
+  padding: 8px;
   font-size: 12px;
+  color: #606266;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: rgba(255, 255, 255, 0.9);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.editor-container {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 200px 700px 1fr;
+  gap: 20px;
+  padding: 20px;
+  transition: margin-left 0.3s;
+}
+
+.editor-container.with-sidebar {
+  margin-left: 0;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fa;
+}
+
+.image-placeholder .el-icon {
+  font-size: 24px;
+  color: #909399;
+}
+
+/* 优化拖拽时的视觉效果 */
+.material-item[draggable="true"]:active {
+  opacity: 0.7;
+}
+
+/* 滚动条美化 */
+.material-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.material-grid::-webkit-scrollbar-thumb {
+  background: #dcdfe6;
+  border-radius: 3px;
+}
+
+.material-grid::-webkit-scrollbar-track {
+  background: #f5f7fa;
 }
 </style> 

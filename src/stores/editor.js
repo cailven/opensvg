@@ -3,6 +3,13 @@ import FadeBlockPreview from '../components/blocks/FadeBlock/Preview.vue'
 import FadeBlockEditor from '../components/blocks/FadeBlock/Editor.vue'
 import ZeroHeightBlockPreview from '../components/blocks/ZeroHeightBlock/Preview.vue'
 import ZeroHeightBlockEditor from '../components/blocks/ZeroHeightBlock/Editor.vue'
+import ClickSwitchBlockPreview from '../components/blocks/ClickSwitchBlock/Preview.vue'
+import ClickSwitchBlockEditor from '../components/blocks/ClickSwitchBlock/Editor.vue'
+import StretchBlockPreview from '../components/blocks/StretchBlock/Preview.vue'
+import StretchBlockEditor from '../components/blocks/StretchBlock/Editor.vue'
+
+
+
 
 const AUTO_SAVE_KEY = 'editor_auto_save'
 const SAVE_DELAY = 1000 // 1秒延迟
@@ -13,6 +20,7 @@ export const componentMap = {
     name:"无缝图",
     preview: FadeBlockPreview,
     editor: FadeBlockEditor,
+    isContainer: false,
     defaultProps: {
       imageUrl: '',
       imageWidth: 0,
@@ -23,7 +31,36 @@ export const componentMap = {
     name:"零高度容器",
     preview: ZeroHeightBlockPreview,
     editor: ZeroHeightBlockEditor,
+    isContainer: true,
     defaultProps: {}
+  },
+  clickSwitch: {
+    name: "点击切换",
+    preview: ClickSwitchBlockPreview,
+    editor: ClickSwitchBlockEditor,
+    isContainer: false,
+    defaultProps: {
+      beforeImageUrl: '',
+      beforeImageWidth: 0,
+      beforeImageHeight: 0,
+      afterImageUrl: '',
+      afterImageWidth: 0,
+      afterImageHeight: 0
+    }
+  },
+  stretch: {
+    name: '点击伸长',
+    editor: StretchBlockEditor,
+    preview: StretchBlockPreview,
+    isContainer: true,
+    defaultProps: {
+      topImageUrl: '',
+      topImageWidth: 0,
+      topImageHeight: 0,
+      stretchImageUrl: '',
+      stretchImageWidth: 0,
+      stretchImageHeight: 0
+    }
   }
 }
 
@@ -141,7 +178,7 @@ export const useEditorStore = defineStore('editor', {
 
     // 删除组件
     deleteComponent(id) {
-      // 如果���容器组件，同时删除其子组件
+      // 如果容器组件，同时删除其子组件
       const deleteIds = [id]
       const component = this.components.find(c => c.id === id)
       if (component && component.type === 'zeroHeight') {
@@ -163,7 +200,8 @@ export const useEditorStore = defineStore('editor', {
       
       if (sourceIndex > -1 && targetIndex > -1) {
         const [movedComponent] = this.components.splice(sourceIndex, 1)
-        this.components.splice(targetIndex, 0, movedComponent)
+        const adjustedTargetIndex = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex
+        this.components.splice(adjustedTargetIndex, 0, movedComponent)
         this.autoSave()
       }
     },

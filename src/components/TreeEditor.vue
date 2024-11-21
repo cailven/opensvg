@@ -12,14 +12,19 @@
     <el-tree
       v-else
       :data="treeData"
+      :key="treeUpdateKey"
       :props="defaultProps"
       draggable
+      :default-expanded-keys="expandedKeys"
+      :allow-drop="handleAllowDrop"
       @node-drag-start="handleDragStart"
       @node-drag-enter="handleDragEnter"
       @node-drag-leave="handleDragLeave" 
       @node-drag-end="handleDragEnd"
       @node-drop="handleNodeDrop"
       @node-click="handleNodeClick"
+      @node-expand="handleNodeExpand"
+      @node-collapse="handleNodeCollapse"
     >
       <template #default="{ node, data }">
         <div class="custom-tree-node">
@@ -29,8 +34,9 @@
           >
             <span v-if="data.type === 'fade'" class="preview-thumb">
               <img 
-                v-if="data.props?.imageUrl" 
-                :src="data.props.imageUrl" 
+                v-if="getImageUrl(data)" 
+                :src="getImageUrl(data)" 
+                :key="getImageUrl(data)"
                 alt="预览"
               />
               <span v-else class="no-image">无图片</span>
@@ -66,28 +72,140 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch, onMounted, nextTick } from 'vue'
 import { useEditorStore } from '../stores/editor'
 import { componentMap } from '../stores/editor'
 import { ElTree, ElButton } from 'element-plus'
 
 const editorStore = useEditorStore()
 
-// 转换数据为树形结构
-const treeData = computed(() => {
+// 修改 expandedKeys 的处理
+const expandedKeys = ref([])
+
+// 添加一个用于存储组件更新前的展开状态
+const previousExpandedKeys = ref([])
+
+// 监听选中组件的变化
+watch(
+  () => editorStore.selectedComponent,
+  () => {
+    // 当选中组件变化时，恢复之前保存的展开状态
+    if (previousExpandedKeys.value.length > 0) {
+      expandedKeys.value = [...previousExpandedKeys.value]
+    }
+  }
+)
+
+// 监听组件属性变化
+watch(
+  () => [...editorStore.components],
+  (newVal, oldVal) => {
+    // 检查是否有图片更新
+    const hasImageUpdate = newVal.some((comp, index) => {
+      const oldComp = oldVal[index]
+      return oldComp && comp.id === oldComp.id && 
+             comp.props?.imageUrl !== oldComp.props?.imageUrl
+    })
+
+    // 检查结构变化
+    const hasStructureChange = newVal.length !== oldVal.length || 
+      newVal.some((comp, index) => {
+        const oldComp = oldVal[index]
+        return !oldComp || 
+               comp.id !== oldComp.id || 
+               comp.parentId !== oldComp.parentId
+      })
+
+    if (hasStructureChange) {
+      // 如果有结构变化，重建整个树
+      treeData.value = buildTreeData()
+    } else if (hasImageUpdate) {
+      // 如果只有图片更新，只更新图片属性
+      treeData.value.forEach(updateNodeImageUrl)
+    }
+  },
+  { deep: true }
+)
+
+// 添加更新图片 URL 的函数
+const updateNodeImageUrl = (node) => {
+  const component = editorStore.components.find(c => c.id === node.id)
+  if (component && component.props?.imageUrl) {
+    node.props = {
+      ...node.props,
+      imageUrl: component.props.imageUrl
+    }
+  }
+  if (node.children) {
+    node.children.forEach(updateNodeImageUrl)
+  }
+}
+
+// 修改 getImageUrl 方法
+const getImageUrl = (data) => {
+  // 直接从当前节点数据中获取
+  return data.props?.imageUrl
+}
+
+// 处理节点展开和折叠
+const handleNodeExpand = (data) => {
+  if (!expandedKeys.value.includes(data.id)) {
+    expandedKeys.value.push(data.id)
+  }
+}
+
+const handleNodeCollapse = (data) => {
+  expandedKeys.value = expandedKeys.value.filter(key => key !== data.id)
+}
+
+// 将 treeData 改为 ref
+const treeData = ref([])
+
+// 添加构建树的方法
+const buildTreeData = () => {
   const topLevel = editorStore.components.filter(comp => !comp.parentId)
   
   const buildTree = (components) => {
     return components.map(comp => ({
       ...comp,
-      children: comp.type === 'zeroHeight' 
+      children: componentMap[comp.type]?.isContainer
         ? buildTree(editorStore.components.filter(c => c.parentId === comp.id))
         : []
     }))
   }
   
   return buildTree(topLevel)
+}
+
+// 添加更新 key
+const treeUpdateKey = ref(0)
+
+// 初始化展开状态
+onMounted(() => {
+  // 初始展开所有节点
+  const getAllIds = (nodes) => {
+    let ids = []
+    nodes.forEach(node => {
+      ids.push(node.id)
+      if (node.children) {
+        ids = ids.concat(getAllIds(node.children))
+      }
+    })
+    return ids
+  }
+  
+  treeData.value = buildTreeData()
+  expandedKeys.value = getAllIds(treeData.value)
 })
+
+// 修改组件属性的方法（如果有的话）
+const updateComponentProps = (componentId, props) => {
+  const component = editorStore.components.find(c => c.id === componentId)
+  if (component) {
+    component.props = { ...component.props, ...props }
+    // 不触发树结构重建
+  }
+}
 
 const defaultProps = {
   children: 'children',
@@ -153,19 +271,21 @@ const handleDrop = (event) => {
 // 重命名原来的 handleDrop 为 handleNodeDrop
 const handleNodeDrop = (draggingNode, dropNode, dropType, ev) => {
   const componentId = draggingNode.data.id
-  const targetId = dropNode?.data?.id // 添加可选链，因为拖到根节点时 dropNode 可能为 null
+  const targetId = dropNode?.data?.id
   
-  
- // 如果是拖到容器内部
- if (dropType === 'inner' && dropNode?.data?.type === 'zeroHeight') {
-    editorStore.updateComponentParent(componentId, targetId)
-  } 
-  // 如果是拖到根节点（dropNode 为 null）或其他位置
-  else if (!dropNode || dropType !== 'inner') {
-    editorStore.updateComponentParent(componentId, null)
+  // 如果要拖入非容器组件内部，阻止操作
+  if (dropType === 'inner' && !componentMap[dropNode?.data?.type]?.isContainer) {
+    return
   }
-  // 其他情况按照正常排序处理
-  else {
+
+  // 根据不同的放置类型处理
+  if (dropType === 'inner') {
+    // 放入容器内部
+    editorStore.updateComponentParent(componentId, targetId)
+  } else {
+    // before 或 after，移动到同级
+    const parentId = dropNode?.data?.parentId || null
+    editorStore.updateComponentParent(componentId, parentId)
     editorStore.moveComponent(componentId, targetId)
   }
 }
@@ -181,6 +301,16 @@ const handleEmptyAreaDrop = (event) => {
   if (componentType) {
     editorStore.addComponent(componentType)
   }
+}
+
+// 添加 handleAllowDrop 方法
+const handleAllowDrop = (draggingNode, dropNode, type) => {
+  // 如果是要放入内部，检查目标是否为容器
+  if (type === 'inner') {
+    return componentMap[dropNode?.data?.type]?.isContainer
+  }
+  // 其他情况（before/after）都允许
+  return true
 }
 </script>
 
