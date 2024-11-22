@@ -5,13 +5,13 @@
     </div>
     
     <div class="api-status">
-      <template v-if="apiConfig.type === 'api'">
+     
         <el-tag size="small">
           <el-icon><Connection /></el-icon>
           接口地址: {{ apiUrl }}
         </el-tag>
-      </template>
-      <template v-else-if="apiConfig.type === 'json'">
+     
+     <div style="margin-left: 20px;">
         <el-button 
           type="success" 
           size="small"
@@ -20,7 +20,7 @@
           <el-icon><Picture /></el-icon>
           {{ showMaterialPanel ? '隐藏素材库' : '显示素材库' }}
         </el-button>
-      </template>
+      </div>
     </div>
     
     <div class="system-actions">

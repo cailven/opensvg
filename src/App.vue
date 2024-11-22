@@ -14,6 +14,7 @@
       <MaterialSidebar
         :show-panel="showMaterialPanel"
         :materials="materialList"
+        @update-materials="handleUpdateMaterials"
       />
 
       <div class="editor-container" :class="{ 'with-sidebar': showMaterialPanel }">
@@ -385,6 +386,18 @@ const filteredMaterials = computed(() => {
 const handleDragStart = (event, material) => {
   event.dataTransfer.setData('application/json', JSON.stringify(material))
   event.dataTransfer.effectAllowed = 'copy'
+}
+
+// 修改 handleUpdateMaterials 方法
+const handleUpdateMaterials = (newMaterials) => {
+  materialList.value = newMaterials
+  // 更新 store 中的素材配置
+  editorStore.updateMaterialConfig({
+    type: 'json',
+    apiUrl: '',
+    materials: newMaterials
+  })
+  ElMessage.success('素材库更新成功')
 }
 </script>
 

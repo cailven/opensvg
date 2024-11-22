@@ -21,7 +21,7 @@
     </div>
 
     <!-- 本地图片上传 -->
-    <div v-if="inputType === 'upload'" class="upload-area" @click="triggerUpload">
+    <div v-if="inputType === 'upload'" class="upload-area" @click="triggerUpload" @dragover.prevent @drop.prevent="handleDrop">
       <input 
         type="file" 
         ref="fileInput"
@@ -30,7 +30,7 @@
         @change="handleLocalImage"
       >
       <div v-if="!props.imageUrl" class="upload-tip">
-        点击选择本地图片<br>
+        点击选择本地图片或拖拽素材<br>
         <small style="color: #999">
           {{ useApi ? '图片将上传至微信公众号' : '本地图片仅供预览，不会被保存' }}
         </small>
@@ -43,11 +43,11 @@
     </div>
 
     <!-- 图片链接输入 -->
-    <div v-else class="url-input-area">
+    <div v-else class="url-input-area" @dragover.prevent @drop.prevent="handleDrop">
       <input 
         type="text"
         v-model="imageUrlInput"
-        placeholder="请输入图片链接（支持 http/https）"
+        placeholder="请输入图片链接（支持 http/https）或拖拽素材"
         @input="handleUrlInput"
       >
       <div class="url-tips">
@@ -178,6 +178,36 @@ const handleUrlInput = () => {
   }
   img.src = imageUrlInput.value
 }
+
+const handleDrop = async (event) => {
+  const dragType = event.dataTransfer.getData('dragType')
+  
+  if (dragType === 'material') {
+    try {
+      const material = JSON.parse(event.dataTransfer.getData('material'))
+      
+      if (material.url) {
+        // 创建一个新的 Image 对象来获取图片尺寸
+        const img = new Image()
+        img.onload = () => {
+          emit('update:image', {
+            url: material.url,
+            width: img.width,
+            height: img.height
+          })
+        }
+        img.src = material.url
+        
+        // 如果是 URL 输入模式，也更新输入框的值
+        if (inputType.value === 'url') {
+          imageUrlInput.value = material.url
+        }
+      }
+    } catch (error) {
+      console.error('处理拖拽素材失败:', error)
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -248,5 +278,10 @@ const handleUrlInput = () => {
   color: #1890ff;
   font-size: 14px;
   text-align: center;
+}
+
+.upload-area.drag-over {
+  border-color: #40a9ff;
+  background-color: rgba(64, 169, 255, 0.05);
 }
 </style>

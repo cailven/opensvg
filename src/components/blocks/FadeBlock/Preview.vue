@@ -1,13 +1,8 @@
 <template>
-  <section
-    class="fade-block"
-    :style="sectionStyle"
-  >
-    <svg 
+<svg 
       :style="svgStyle"
       :viewBox="`0 0 ${actualWidth} ${actualHeight}`"
     >
-   
       <g v-for="(hotspot, index) in props.hotspots" :key="index">
         <a 
           v-if="hotspot.type === 'link'"
@@ -65,7 +60,6 @@
             />
           </template>
     </svg>
-  </section>
 </template>
 
 <script setup>
@@ -85,23 +79,11 @@ const props = defineProps({
   }
 })
 
-const sectionStyle = computed(() => ({
-  '-webkit-touch-callout': 'none',
-  'user-select': 'text',
-  'overflow': 'hidden',
-  'text-align': 'center',
-  'line-height': '0'
-}))
-
 const svgStyle = computed(() => {
   const url = props.imageUrl ? `url("${props.imageUrl}")` : ''
   return {
     'background-image': url,
     'background-size': '100%',
-    'background-repeat': 'no-repeat',
-    'display': 'block',
-    'line-height': '0',
-    'transform': 'scale(1)',
     'margin-top': '-1px',
   }
 })

@@ -5,7 +5,19 @@
     :class="{ 'sidebar-collapsed': !showPanel }"
   >
     <div class="sidebar-header">
-      <h3>素材库</h3>
+      <div class="header-top">
+        <h3>素材库</h3>
+        <el-button-group>
+          <el-button 
+            type="primary" 
+            size="small"
+            @click="handleUploadJson"
+          >
+            <el-icon><Upload /></el-icon>
+            导入素材库
+          </el-button>
+        </el-button-group>
+      </div>
       <el-input
         v-model="searchQuery"
         placeholder="搜索素材"
@@ -36,16 +48,26 @@
       </div>
     </div>
   </div>
+  <input 
+    type="file" 
+    ref="fileInput"
+    style="display: none"
+    accept=".json"
+    @change="handleFileSelect"
+  >
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Picture } from '@element-plus/icons-vue'
-import { ElImageViewer } from 'element-plus'
+import { Picture, Upload } from '@element-plus/icons-vue'
+import { ElImageViewer, ElMessage } from 'element-plus'
 
 const props = defineProps({
   showPanel: Boolean,
-  materials: Array
+  materials: {
+    type: Array,
+    default: () => []
+  }
 })
 
 const searchQuery = ref('')
@@ -71,6 +93,37 @@ const handleImageClick = (url) => {
 //     teleported: true,
 //   })
 }
+
+const fileInput = ref(null)
+const emit = defineEmits(['fileSelect', 'updateMaterials'])
+
+const handleUploadJson = () => {
+  fileInput.value?.click()
+}
+
+const handleFileSelect = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  
+  try {
+    const content = await file.text()
+    const materials = JSON.parse(content)
+    
+    // 验证材料格式
+    if (Array.isArray(materials) && materials.every(item => item.name && item.url)) {
+      emit('updateMaterials', materials)
+      ElMessage.success('素材库导入成功')
+    } else {
+      ElMessage.error('素材库格式不正确')
+    }
+  } catch (error) {
+    console.error('导入素材库失败:', error)
+    ElMessage.error('导入素材库失败，请检查文件格式')
+  }
+  
+  // 清空文件输入以允许重复选择同一文件
+  event.target.value = ''
+}
 </script>
 
 <style scoped>
@@ -91,5 +144,20 @@ const handleImageClick = (url) => {
   align-items: center;
   justify-content: center;
   background-color: #f5f7fa;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.material-sidebar {
+  padding: 16px;
+}
+
+.sidebar-header {
+  margin-bottom: 16px;
 }
 </style> 

@@ -17,13 +17,13 @@
             </svg>
           </i>
         </button>
-       <!--   <button class="toolbar-btn" @click="showQRCode" title="手机预览">
+         <button class="toolbar-btn" @click="showQRCode" title="手机预览">
           <i class="icon-qrcode">
             <svg viewBox="0 0 1024 1024" width="16" height="16">
               <path d="M149.76 149.76v298.24h298.24V149.76H149.76z m234.24 234.24H213.76V213.76h170.24v170.24zM149.76 576v298.24h298.24V576H149.76z m234.24 234.24H213.76v-170.24h170.24v170.24zM576 149.76v298.24h298.24V149.76H576z m234.24 234.24h-170.24V213.76h170.24v170.24zM576 576v85.76h85.76V576H576z m298.24 298.24v-85.76h-85.76v85.76h85.76zM576 746.24v128h128v-128H576z m213.76-85.76v-84.48h-85.76v84.48h85.76z" fill="currentColor"/>
             </svg>
           </i>
-        </button> -->
+        </button>
       </div>
     </div>
 
@@ -69,7 +69,7 @@
 
     <!-- 二维码弹窗 -->
     <div v-if="showQRCodeDialog" class="dialog-overlay" @click="closePreview">
-      <div class="dialog-content mobile-preview" @click.stop>
+      <div class="dialog-content-mobile" @click.stop>
         <div class="dialog-header">
           <h3>移动端预览</h3>
           <button class="close-btn" @click="closePreview">×</button>
@@ -351,7 +351,7 @@ const topLevelComponents = computed(() => {
   box-shadow: 0 60px 0 0 #c8cacb;
 }
 
-/* 优化滚动条样式 */
+/* 优化滚动条式 */
 .preview-area::-webkit-scrollbar {
   width: 4px;
 }
@@ -416,94 +416,40 @@ const topLevelComponents = computed(() => {
 .dialog-content {
   background: #fff;
   border-radius: 8px;
-  min-width: 900px;
+  /* min-width: 900px;
   max-width: 80%;
-  max-height: 80vh;
+  max-height: 80vh; */
   overflow: auto;
+  
+
 }
 
-.dialog-header {
-  padding: 16px;
-  border-bottom: 1px solid #eee;
+.dialog-content-mobile {
+  background: #fff;
+  width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dialog-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.copy-btn {
-  padding: 4px 12px;
-  background: #1890ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.copy-btn:hover {
-  background: #40a9ff;
-}
-
-.code-content {
-  width: 95%;
-  height: 700px;
-  padding: 16px;
-  background: #f5f5f5;
-  margin: 16px;
-  border-radius: 4px;
-  overflow-y: auto;
-  margin: 0;
-  font-family: monospace;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.dialog-footer {
-  padding: 0 16px 16px;
-}
-
-.tips {
-  margin: 0;
-  color: #666;
-  font-size: 14px;
-}
-
-.preview-tips {
-  padding: 24px;
-  text-align: center;
-  color: #666;
-}
-
-.preview-tips p {
-  margin: 8px 0;
-  line-height: 1.5;
-}
-
-.mobile-preview {
-  width: 375px;
-  max-width: 90vw;
+  flex-direction: column;
+  border-radius: 0;
 }
 
 .mobile-container {
-  padding: 20px;
-  background: #f5f5f5;
+  padding: 0;
+  background: #fff;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .mobile-frame {
   width: 100%;
-  height: 600px;
-  max-height: 70vh;
+  height: 100%;
   background: #fff;
-  border-radius: 20px;
+  border-radius: 0;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .mobile-iframe {
@@ -514,14 +460,7 @@ const topLevelComponents = computed(() => {
 }
 
 .preview-tips {
-  padding: 16px;
-  text-align: center;
-  color: #666;
-  font-size: 14px;
-}
-
-.preview-tips p {
-  margin: 0;
+  display: none;
 }
 
 .dialog-content {
@@ -531,7 +470,7 @@ const topLevelComponents = computed(() => {
 }
 
 .dialog-header {
-  padding: 16px;
+  padding: 8px 16px;
   border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
