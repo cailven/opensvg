@@ -256,25 +256,40 @@ const handleDragOver = (event) => {
 }
 
 const handleDrop = (event) => {
+  // 检查拖拽释放的目标区域
+  const targetArea = event.target.closest('.tree-editor-container, .editor-panel')
+  if (!targetArea) return
+
   event.preventDefault()
   const componentType = event.dataTransfer.getData('componentType')
   const componentId = event.dataTransfer.getData('componentId')
   const dragType = event.dataTransfer.getData('dragType')
   
+  // 如果是拖拽到编辑器面板区域，不处理新增节点
+  if (targetArea.classList.contains('editor-panel')) {
+    return
+  }
+  
+  // 以下是原有的处理逻辑，只在拖拽到 tree-editor-container 时执行
   if (dragType === 'material') {
-    // 处理素材拖拽
-    const material = JSON.parse(event.dataTransfer.getData('material'))
-    // 创建新的无缝图组件
-    const newComponent = {
-      type: 'fade',
-      props: {
-        imageUrl: material.url,
-        name: material.name
+    try {
+      const material = JSON.parse(event.dataTransfer.getData('material'))
+      const newComponent = {
+        type: 'fade',
+        props: {
+          imageUrl: material.url,
+          name: material.name || '无缝图',
+          imageWidth: 0,
+          imageHeight: 0
+        }
       }
+      editorStore.addComponent('fade', newComponent.props)
+    } catch (error) {
+      console.error('处理拖拽数据失败:', error)
     }
-    editorStore.addComponent('fade', newComponent.props)
   } else if (componentType) {
-    editorStore.addComponent(componentType)
+    const defaultProps = componentMap[componentType]?.defaultProps || {}
+    editorStore.addComponent(componentType, defaultProps)
   } else if (componentId) {
     editorStore.updateComponentParent(componentId, null)
   }
@@ -409,7 +424,7 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
   margin-top: 16px;
   padding: 16px;
   border-top: 1px solid #eee;
-  background: #fafafa;
+  background: #f0f0f0;
   border-radius: 8px;
 }
 
