@@ -30,7 +30,7 @@ export const componentMap = {
     }
   },
   zeroHeight: {
-    name:"零高度容器",
+    name:"零高容器",
     preview: ZeroHeightBlockPreview,
     editor: ZeroHeightBlockEditor,
     isContainer: true,

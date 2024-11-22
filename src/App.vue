@@ -177,8 +177,8 @@ const apiConfig = ref({
 const apiUrl = ref('')
 const dropdownVisible = ref(false)
 const showMaterialDialog = ref(false)
-const materialList = ref([])
-const showMaterialPanel = ref(false)
+const materialList = ref(editorStore.materialConfig.materials || [])
+const showMaterialPanel = ref(true)
 const searchQuery = ref('')
 const selectedFileName = ref('')
 
@@ -399,6 +399,17 @@ const handleUpdateMaterials = (newMaterials) => {
   })
   ElMessage.success('素材库更新成功')
 }
+
+// 监听 store 中的素材配置变化
+watch(
+  () => editorStore.materialConfig,
+  (newConfig) => {
+    if (newConfig.type === 'json') {
+      materialList.value = newConfig.materials
+    }
+  },
+  { deep: true, immediate: true }
+)
 </script>
 
 <style>

@@ -66,6 +66,7 @@ import { ref, computed } from 'vue'
 import { Picture, Upload } from '@element-plus/icons-vue'
 import { ElImageViewer, ElMessage } from 'element-plus'
 import { createVNode, render } from 'vue'
+import { useEditorStore } from '../stores/editor'
 
 const props = defineProps({
   showPanel: Boolean,
@@ -126,6 +127,8 @@ const handleUploadJson = () => {
   fileInput.value?.click()
 }
 
+const editorStore = useEditorStore()
+
 const handleFileSelect = async (event) => {
   const file = event.target.files[0]
   if (!file) return
@@ -136,7 +139,16 @@ const handleFileSelect = async (event) => {
     
     // 验证材料格式
     if (Array.isArray(materials) && materials.every(item => item.name && item.url)) {
+      // 更新 store 中的素材配置
       emit('updateMaterials', materials)
+      
+      // 更新 store 中的素材配置并触发自动保存
+      editorStore.updateMaterialConfig({
+        type: 'json',
+        apiUrl: '',
+        materials: materials
+      })
+      
       ElMessage.success('素材库导入成功')
     } else {
       ElMessage.error('素材库格式不正确')
