@@ -95,6 +95,7 @@ const loadImage = (url) => {
   if (!url) return
   
   const img = new Image()
+  img.referrerPolicy = 'no-referrer'
   img.src = url
   img.onload = () => {
     actualWidth.value = img.naturalWidth

@@ -37,9 +37,13 @@
       >
         <div
           class="material-image"
-          :style="{ backgroundImage: `url(${item.url})` }"
           @click="handleImageClick(item.url)"
         >
+          <img 
+            :src="item.url" 
+            referrerpolicy="no-referrer"
+            class="material-img"
+          />
           <div v-if="!item.url" class="image-placeholder">
             <el-icon><Picture /></el-icon>
           </div>
@@ -61,6 +65,7 @@
 import { ref, computed } from 'vue'
 import { Picture, Upload } from '@element-plus/icons-vue'
 import { ElImageViewer, ElMessage } from 'element-plus'
+import { createVNode, render } from 'vue'
 
 const props = defineProps({
   showPanel: Boolean,
@@ -80,18 +85,38 @@ const filteredMaterials = computed(() => {
   )
 })
 
-const handleDragStart = (event, material) => {
+const getNoReferrerImageUrl = async (url) => {
+  const img = new Image();
+  img.referrerPolicy = 'no-referrer'
+  return new Promise((resolve) => {
+    img.onload = () => {
+      resolve(url)
+    }
+    img.src = url
+  })
+}
+
+const handleDragStart = async (event, material) => {
   event.dataTransfer.setData('dragType', 'material')
   event.dataTransfer.setData('material', JSON.stringify(material))
   event.dataTransfer.effectAllowed = 'copy'
 }
 
-const handleImageClick = (url) => {
-//   console.log('handleImageClick', url)
-//   const imageViewer = ElImageViewer({
-//     urlList: [url],
-//     teleported: true,
-//   })
+const handleImageClick = async (url) => {
+  const noReferrerUrl = await getNoReferrerImageUrl(url)
+  
+  const container = document.createElement('div')
+  const vnode = createVNode(ElImageViewer, {
+    urlList: [url],
+    teleported: true,
+    onClose: () => {
+      render(null, container)
+      document.body.removeChild(container)
+    }
+  })
+  
+  document.body.appendChild(container)
+  render(vnode, container)
 }
 
 const fileInput = ref(null)
@@ -130,20 +155,17 @@ const handleFileSelect = async (event) => {
 .material-image {
   width: 100%;
   height: 100px;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  cursor: pointer;
+  position: relative;
   border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-.image-placeholder {
+.material-img {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f5f7fa;
+  object-fit: cover;
+  pointer-events: none;
 }
 
 .header-top {

@@ -39,6 +39,7 @@
         v-else 
         :src="props.imageUrl" 
         class="preview-img"
+        referrerpolicy="no-referrer"
       >
     </div>
 
@@ -133,7 +134,8 @@ const uploadToApi = async (file) => {
     const data = await response.json()
     
     if (data && data.code === 0&& data.data?.[0]?.upl_url) {
-      const img = new Image()
+      const img = new Image();
+      img.referrerPolicy = 'no-referrer'
       img.onload = () => {
         emit('update:image', {
           url: data.data[0].upl_url,
@@ -153,30 +155,20 @@ const uploadToApi = async (file) => {
   }
 }
 
-const previewLocalImage = (file) => {
-  const img = new Image()
-  img.onload = () => {
-    emit('update:image', {
-      url: img.src,
-      width: img.width,
-      height: img.height
-    })
+const previewLocalImage = async (file) => {
+  const url = URL.createObjectURL(file)
+  const imageData = await loadImageWithNoReferrer(url)
+  if (imageData) {
+    emit('update:image', imageData)
   }
-  img.src = URL.createObjectURL(file)
 }
 
-const handleUrlInput = () => {
+const handleUrlInput = async () => {
   if (!imageUrlInput.value) return
-  
-  const img = new Image()
-  img.onload = () => {
-    emit('update:image', {
-      url: imageUrlInput.value,
-      width: img.width,
-      height: img.height
-    })
+  const imageData = await loadImageWithNoReferrer(imageUrlInput.value)
+  if (imageData) {
+    emit('update:image', imageData)
   }
-  img.src = imageUrlInput.value
 }
 
 const handleDrop = async (event) => {
@@ -188,7 +180,8 @@ const handleDrop = async (event) => {
       
       if (material.url) {
         // 创建一个新的 Image 对象来获取图片尺寸
-        const img = new Image()
+        const img = new Image();
+        img.referrerPolicy = 'no-referrer'
         img.onload = () => {
           emit('update:image', {
             url: material.url,
@@ -208,6 +201,38 @@ const handleDrop = async (event) => {
     }
   }
 }
+
+const loadImageWithNoReferrer = async (url) => {
+  if (!url) return null
+  
+  try {
+    const img = new Image()
+    img.referrerPolicy = 'no-referrer'
+    await new Promise((resolve, reject) => {
+      img.onload = resolve
+      img.onerror = reject
+      img.src = url
+    })
+    return {
+      url,
+      width: img.width,
+      height: img.height
+    }
+  } catch (error) {
+    console.error('图片加载失败:', error)
+    return null
+  }
+}
+
+// 添加 props.imageUrl 的监听
+watch(() => props.imageUrl, async (newUrl) => {
+  if (newUrl) {
+    const imageData = await loadImageWithNoReferrer(newUrl)
+    if (imageData) {
+      emit('update:image', imageData)
+    }
+  }
+}, { immediate: true })
 </script>
 
 <style scoped>

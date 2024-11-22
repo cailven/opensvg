@@ -50,18 +50,18 @@
 
     <!-- 代码预览弹窗 -->
     <div v-if="showCodeDialog" class="dialog-overlay" @click="showCodeDialog = false">
-      <div class="dialog-content" @click.stop>
-        <div class="dialog-header">
+      <div class="code-dialog-content" @click.stop>
+        <div class="code-dialog-header">
           <h3>微信公众号代码</h3>
           <div class="dialog-actions">
             <button class="copy-btn" @click="copyCode">复制代码</button>
             <button class="close-btn" @click="showCodeDialog = false">×</button>
           </div>
         </div>
-        <textarea class="code-content">
-         {{ generateCode() }}
-        </textarea>
-        <div class="dialog-footer">
+        <div class="code-content-wrapper">
+          <textarea class="code-content" readonly>{{ generateCode() }}</textarea>
+        </div>
+        <div class="code-dialog-footer">
           <p class="tips">提示：复制代码后可直接粘贴到微信公众号后台编辑器中</p>
         </div>
       </div>
@@ -416,9 +416,9 @@ const topLevelComponents = computed(() => {
 .dialog-content {
   background: #fff;
   border-radius: 8px;
-  /* min-width: 900px;
+  min-width: 900px;
   max-width: 80%;
-  max-height: 80vh; */
+  max-height: 80vh;
   overflow: auto;
   
 
@@ -500,5 +500,67 @@ const topLevelComponents = computed(() => {
   text-align: center;
   color: #666;
   font-size: 14px;
+}
+
+/* 代码预览弹窗专属样式 */
+.code-dialog-content {
+  background: #fff;
+  border-radius: 8px;
+  min-width: 900px;
+  max-width: 80%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.code-dialog-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code-content-wrapper {
+  padding: 24px;
+  flex: 1;
+  min-height: 400px;
+  background: #f8f9fa;
+}
+
+.code-content {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  /* padding: 16px; */
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  background: #fff;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+}
+
+.code-dialog-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.copy-btn {
+  padding: 6px 16px;
+  background: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 12px;
+  transition: background 0.3s;
+}
+
+.copy-btn:hover {
+  background: #40a9ff;
 }
 </style> 

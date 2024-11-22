@@ -6,12 +6,23 @@
     
     <div class="api-status">
      
-        <el-tag size="small">
-          <el-icon><Connection /></el-icon>
-          接口地址: {{ apiUrl }}
-        </el-tag>
-     
-     <div style="margin-left: 20px;">
+      
+      <el-tag size="small" style="margin-left: 10px">
+        <el-icon><Connection /></el-icon>
+        接口地址: {{ apiUrl }}
+      </el-tag>
+
+      
+
+      <div style="margin-left: 20px;">
+        <el-button 
+        type="primary" 
+        size="small"
+        @click="$emit('showApiConfig')"
+      >
+        <el-icon><Setting /></el-icon>
+        配置接口
+      </el-button>
         <el-button 
           type="success" 
           size="small"
@@ -50,7 +61,7 @@
         @hide="dropdownVisible = false"
       >
         <template #reference>
-          <el-button @click="dropdownVisible = true" :icon="Setting">系统设置</el-button>
+          <el-button v-if="false" @click="dropdownVisible = true" :icon="Setting">系统设置</el-button>
         </template>
         <div class="dropdown-menu">
           <el-button 

@@ -41,6 +41,7 @@
               :href="props.imageUrl" 
               width="100%" 
               height="100%"
+                referrerpolicy="no-referrer"
             />
             
             <!-- 已有热区 -->
