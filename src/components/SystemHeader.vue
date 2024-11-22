@@ -1,7 +1,7 @@
 <template>
   <div class="system-header">
     <div class="system-logo">
-      <img src="/public/logo.gif" alt="编辑器" />
+      <img src="/logo.gif" alt="编辑器" />
     </div>
     
     <div class="api-status">
