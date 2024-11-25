@@ -7,6 +7,10 @@ import ClickSwitchBlockPreview from '../components/blocks/ClickSwitchBlock/Previ
 import ClickSwitchBlockEditor from '../components/blocks/ClickSwitchBlock/Editor.vue'
 import StretchBlockPreview from '../components/blocks/StretchBlock/Preview.vue'
 import StretchBlockEditor from '../components/blocks/StretchBlock/Editor.vue'
+import ScrollBlockPreview from '../components/blocks/ScrollBlock/Preview.vue'
+import ScrollBlockEditor from '../components/blocks/ScrollBlock/Editor.vue'
+import ClickGifBlockPreview from '../components/blocks/ClickGifBlock/Preview.vue'
+import ClickGifBlockEditor from '../components/blocks/ClickGifBlock/Editor.vue'
 
 // 在文件顶部添加 generateId 函数
 const generateId = () => {
@@ -62,6 +66,24 @@ export const componentMap = {
       stretchImageUrl: '',
       stretchImageWidth: 0,
       stretchImageHeight: 0
+    }
+  },
+  scroll: {
+    name: "横向滚动",
+    preview: ScrollBlockPreview,
+    editor: ScrollBlockEditor,
+    isContainer: true,
+    defaultProps: {}
+  },
+  'click-gif': {
+    name: "连续点击播放GIF",
+    isContainer: false,
+    preview: ClickGifBlockPreview,
+    editor: ClickGifBlockEditor,
+    defaultProps: {
+      images: [],
+      imageWidth: 345,
+      imageHeight: 613.18
     }
   }
 }

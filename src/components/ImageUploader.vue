@@ -208,13 +208,16 @@ const loadImageWithNoReferrer = async (url) => {
   try {
     const img = new Image()
     img.referrerPolicy = 'no-referrer'
+    const randomUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now()
     await new Promise((resolve, reject) => {
       img.onload = resolve
       img.onerror = reject
+      // img.src = randomUrl
       img.src = url
     })
     return {
-      url,
+      // url: randomUrl,
+      url:url,
       width: img.width,
       height: img.height
     }
