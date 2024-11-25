@@ -1,16 +1,45 @@
 <template>
   <div class="component-list">
+    <!-- 容器组件 -->
     <el-card class="component-category" shadow="never">
       <template #header>
         <div class="category-header">
-          <el-icon><Grid /></el-icon>
-          <span>可用组件</span>
+          <el-icon><Box /></el-icon>
+          <span>容器组件</span>
         </div>
       </template>
       
       <el-space direction="vertical" fill>
         <el-card
-          v-for="(config, type) in componentMap"
+          v-for="(config, type) in containerComponents"
+          :key="type"
+          class="component-item container-item"
+          shadow="hover"
+          draggable="true"
+          @dragstart="handleDragStart($event, type)"
+        >
+          <div class="item-content">
+            <el-icon>
+              <component :is="getIconComponent(type)" />
+            </el-icon>
+            <span>{{ config.name }}</span>
+          </div>
+        </el-card>
+      </el-space>
+    </el-card>
+
+    <!-- 普通组件 -->
+    <el-card class="component-category" shadow="never">
+      <template #header>
+        <div class="category-header">
+          <el-icon><Grid /></el-icon>
+          <span>普通组件</span>
+        </div>
+      </template>
+      
+      <el-space direction="vertical" fill>
+        <el-card
+          v-for="(config, type) in normalComponents"
           :key="type"
           class="component-item"
           shadow="hover"
@@ -30,7 +59,8 @@
 </template>
 
 <script setup>
-import { Picture, Crop, Switch, ArrowRight, Grid } from '@element-plus/icons-vue'
+import { computed } from 'vue'
+import { Picture, Crop, Switch, ArrowRight, Grid, Box } from '@element-plus/icons-vue'
 import { componentMap } from '../stores/editor'
 
 // 图标映射表
@@ -38,13 +68,36 @@ const iconMap = {
   fade: Picture,
   zeroHeight: Crop,
   clickSwitch: Switch,
-  stretch: ArrowRight
+  stretch: ArrowRight,
+  scroll: Box,
+  'vertical-scroll': Box
 }
 
 // 获取对应的图标组件
 const getIconComponent = (type) => {
-  return iconMap[type] || Grid // 如果没有对应的图标，使用默认图标
+  return iconMap[type] || Grid
 }
+
+// 区分容器和普通组件
+const containerComponents = computed(() => {
+  const containers = {}
+  for (const [type, config] of Object.entries(componentMap)) {
+    if (config.isContainer) {
+      containers[type] = config
+    }
+  }
+  return containers
+})
+
+const normalComponents = computed(() => {
+  const normal = {}
+  for (const [type, config] of Object.entries(componentMap)) {
+    if (!config.isContainer) {
+      normal[type] = config
+    }
+  }
+  return normal
+})
 
 const handleDragStart = (event, type) => {
   event.dataTransfer.setData('componentType', type)
@@ -55,6 +108,14 @@ const handleDragStart = (event, type) => {
 .component-list {
   padding: 10px;
   width: 200px;
+}
+
+.component-category {
+  margin-bottom: 16px;
+}
+
+.component-category:last-child {
+  margin-bottom: 0;
 }
 
 .component-category :deep(.el-card__header) {
@@ -72,6 +133,11 @@ const handleDragStart = (event, type) => {
 .component-item {
   cursor: move;
   margin-bottom: 0 !important;
+}
+
+.container-item {
+  border: 1px dashed var(--el-color-primary-light-5);
+  background-color: var(--el-color-primary-light-9);
 }
 
 .component-item:hover {

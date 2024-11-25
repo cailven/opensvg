@@ -11,6 +11,12 @@ import ScrollBlockPreview from '../components/blocks/ScrollBlock/Preview.vue'
 import ScrollBlockEditor from '../components/blocks/ScrollBlock/Editor.vue'
 import ClickGifBlockPreview from '../components/blocks/ClickGifBlock/Preview.vue'
 import ClickGifBlockEditor from '../components/blocks/ClickGifBlock/Editor.vue'
+import VerticalScrollBlockPreview from '../components/blocks/VerticalScrollBlock/Preview.vue'
+import VerticalScrollBlockEditor from '../components/blocks/VerticalScrollBlock/Editor.vue'
+import ImgBlockPreview from '../components/blocks/ImgBlock/Preview.vue'
+import ImgBlockEditor from '../components/blocks/ImgBlock/Editor.vue'
+import CustomBlockPreview from '../components/blocks/CustomBlock/Preview.vue'
+import CustomBlockEditor from '../components/blocks/CustomBlock/Editor.vue'
 
 // 在文件顶部添加 generateId 函数
 const generateId = () => {
@@ -23,7 +29,7 @@ const SAVE_DELAY = 1000 // 1秒延迟
 // 导出组件映射表供其他组件使用
 export const componentMap = {
   fade: {
-    name:"无缝图",
+    name:"SVG图片",
     preview: FadeBlockPreview,
     editor: FadeBlockEditor,
     isContainer: false,
@@ -31,6 +37,18 @@ export const componentMap = {
       imageUrl: '',
       imageWidth: 0,
       imageHeight: 0
+    }
+  },
+  img: {
+    name: "img图片",
+    preview: ImgBlockPreview,
+    editor: ImgBlockEditor,
+    isContainer: false,
+    defaultProps: {
+      imageUrl: '',
+      imageWidth: 0,
+      imageHeight: 0,
+      enableClick: true
     }
   },
   zeroHeight: {
@@ -84,6 +102,25 @@ export const componentMap = {
       images: [],
       imageWidth: 345,
       imageHeight: 613.18
+    }
+  },
+  'vertical-scroll': {
+    name: "纵向滚动",
+    isContainer: true,
+    preview: VerticalScrollBlockPreview,
+    editor: VerticalScrollBlockEditor,
+    defaultProps: {
+      containerHeight: 160
+    }
+  },
+  'custom': {
+    name: "自定义组件",
+    preview: CustomBlockPreview,
+    editor: CustomBlockEditor,
+    isContainer: false,
+    defaultProps: {
+      htmlContent: '',
+      imageNodes: []
     }
   }
 }

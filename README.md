@@ -1,16 +1,63 @@
-# wechat-editor
+# WeChat Editor - OpenSVG 微信公众号SVG编辑器
 
-This template should help get you started developing with Vue 3 in Vite.
+一个开源免费的微信公众号SVG编辑器,帮助运营人员快速制作微信公众号图文内容。
 
-## Recommended IDE Setup
+![预览图](preview.png)
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 主要功能
 
-## Customize configuration
+### 1. 组件系统
+- SVG图片组件 - 支持SVG动画效果
+- 普通图片组件 - 支持点击长按识别
+- 零高容器组件 - 用于制作折叠展开效果
+- 点击切换组件 - 实现图片点击切换效果
+- 点击伸长组件 - 实现内容展开动画
+- 连续点击GIF组件 - 支持多帧动画播放
+- 自定义HTML组件 - 支持导入自定义HTML内容
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### 2. 素材管理
+- 素材库功能
+- 支持本地上传
+- 支持API配置
+- 支持拖拽使用
 
-## Project Setup
+### 3. 项目管理
+- 项目保存/导入
+- 自动保存功能
+- 实时预览
+- 手机预览
+- 代码导出
+
+### 4. 编辑功能
+- 组件树编辑
+- 拖拽排序
+- 属性配置
+- 动画编辑
+
+## 待完善功能
+
+1. 动画系统增强
+   - 支持更多动画效果
+   - 优化动画编辑器
+   - 添加动画预览
+
+2. 组件扩展
+   - 添加更多常用组件
+   - 支持组件模板
+   - 组件样式配置增强
+
+3. 协同功能
+   - 多人协作
+   - 版本控制
+   - 模板共享
+
+4. 其他优化
+   - 性能优化
+   - 移动端适配
+   - 快捷键支持
+   - 撤销/重做功能
+
+## 快速开始
 
 ```sh
 npm install
