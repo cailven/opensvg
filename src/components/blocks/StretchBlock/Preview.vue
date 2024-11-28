@@ -1,25 +1,26 @@
 <template>
   <section class="stretch-block">
 
-    <section id="伸长1" style="overflow:hidden">
+    <section id="伸长1" style="overflow:hidden;line-height: 0;pointer-events: none;">
       <!-- 伸长内容 -->
       <section id="零高" style="height: 0; min-height: 0;">
-      <section id="内容层" ref="contentRef" style="height: auto; min-height: 0;">
-        <component v-for="child in children" :key="child.id" :is="componentMap[child.type].preview" v-bind="child.props"
-          :componentId="child.id" @load="onImageLoad" @update:height="onHeightUpdate" />
-      </section>
+        <section id="内容层" ref="contentRef" style="height: auto; min-height: 0;">
+          <component v-for="child in children" :key="child.id" :is="componentMap[child.type].preview"
+            v-bind="child.props" :componentId="child.id" @load="onImageLoad" @update:height="onHeightUpdate" />
+        </section>
       </section>
 
       <!-- 顶部图片 -->
       <section id="topimg" ref="topImageRef" style="pointer-events: none; font-size: 0">
         <svg id="gif图1" :style="topImageStyle" :viewBox="`0 0 ${props.topImageWidth} ${props.topImageHeight}`">
           <animate id="宽度动画1" attributeName="width" fill="freeze" calcMode="spline"
-            keySplines="0.42 0 0.58 1;0.42 0 0.58 1" restart="never" keyTimes="0;0.002;1" :values="`100%;${stretchPercentage}%;${stretchPercentage}%`"
-            dur="1000s" :begin="`click+${props.animationDelay}.5s`"></animate>
+            keySplines="0.42 0 0.58 1;0.42 0 0.58 1" restart="never" keyTimes="0;0.002;1"
+            :values="`100%;${stretchPercentage}%;${stretchPercentage}%`" dur="1000s"
+            :begin="`click+${props.animationDelay}.5s`"></animate>
           <animate attributeName="opacity" :begin="`click+${props.animationDelay}s`" restart="never" dur="500s"
             keyTimes="0;0.00000001;1" values="1;0;0" fill="freeze"></animate>
           <g>
-            <g id="gif图2" transform="translate(1000 0)">
+            <g id="gif图2" transform="translate(2000 0)">
               <foreignObject x="0" y="0" width="100%" height="100%">
                 <svg :style="topImage2Style" :viewBox="`0 0 ${props.topImage2Width} ${props.topImage2Height}`"></svg>
               </foreignObject>
@@ -113,9 +114,9 @@ watch(
     console.log("属性变化触发更新")
     forceUpdate()
   },
-  { 
+  {
     deep: true,
-    immediate: true 
+    immediate: true
   }
 )
 
@@ -133,19 +134,19 @@ const updateContentHeight = () => {
 // 计算伸展百分比
 const stretchPercentage = computed(() => {
   if (!isReady.value) return 100
-  
+
   const triggerValue = updateTrigger.value
   console.log("开始计算 stretchPercentage, trigger:", triggerValue)
-  
+
   if (!topImageRef.value) {
     console.log("未找到顶部图片节点，返回默认值 100")
     return 100
   }
-  
+
   updateContentHeight()
-  
+
   const topHeight = topImageRef.value.scrollHeight
-  const totalHeight = childrenTotalHeight.value 
+  const totalHeight = childrenTotalHeight.value
   console.log("计算百分比 - 实际总高度:", totalHeight, "顶部图片高度:", topHeight)
   return Math.ceil((totalHeight / topHeight) * 100)
 })
@@ -160,25 +161,26 @@ onMounted(() => {
 })
 
 const topImageStyle = computed(() => ({
-  transform: 'scale(1)',
-  isolation: 'isolate',
+  maxWidth: 'none!important',
+  // transform: 'scale(1)',
+  // isolation: 'isolate',
   backgroundImage: `url("${props.topImageUrl}")`,
   backgroundSize: '100%',
   backgroundRepeat: 'no-repeat',
-  display: 'inline',
+  // display: 'inline',
   lineHeight: '0',
-  marginTop: '-1px'
+  marginTop: '-0.33vw'
 }))
 
 const topImage2Style = computed(() => ({
-  transform: 'scale(1)',
-  isolation: 'isolate',
+  // transform: 'scale(1)',
+  // isolation: 'isolate',
   backgroundImage: `url("${props.topImage2Url}")`,
   backgroundSize: '100%',
   backgroundRepeat: 'no-repeat',
-  display: 'inline',
+  // display: 'inline',
   lineHeight: '0',
-  marginTop: '-1px'
+  marginTop: '-0.33vw'
 }))
 </script>
 

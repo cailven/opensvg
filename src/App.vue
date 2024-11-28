@@ -302,12 +302,14 @@ const saveApiConfig = () => {
   }
   
   if (apiConfig.value.type === 'api') {
-    if (!apiConfig.value.url) {
-      ElMessage.warning('请输入接口地址')
-      return
-    }
+    // if (!apiConfig.value.url) {
+    //   ElMessage.warning('请输入接口地址')
+    //   return
+    // }
     config.apiUrl = apiConfig.value.url
     config.materials = []
+    // 更新显示的接口地址
+    apiUrl.value = apiConfig.value.url
   } else {
     if (!selectedFileName.value) {
       ElMessage.warning('请选择素材库文件')
@@ -315,6 +317,8 @@ const saveApiConfig = () => {
     }
     config.apiUrl = ''
     config.materials = materialList.value
+    // 更新显示的接口地址
+    apiUrl.value = '使用素材库文件'
   }
   
   // 使用 store 保存配置
@@ -350,21 +354,16 @@ const copyUrl = async (url) => {
 
 // 组件挂载时读取配置
 onMounted(() => {
-
-  const apiType = localStorage.getItem('apiType')
-  if (apiType === 'api') {
-    const savedApiUrl = localStorage.getItem('apiUrl')
-    if (savedApiUrl) {
-      apiUrl.value = savedApiUrl
-      apiConfig.value.url = savedApiUrl
-      apiConfig.value.type = 'api'
-    }
-  } else if (apiType === 'json') {
-    const materialJson = localStorage.getItem('materialJson')
-    if (materialJson) {
-      apiUrl.value = '使用素材库文件'
-      apiConfig.value.type = 'json'
-    }
+  // 从 store 中读取配置
+  const config = editorStore.materialConfig
+  if (config.type === 'api') {
+    apiUrl.value = config.apiUrl || ''
+    apiConfig.value.url = config.apiUrl || ''
+    apiConfig.value.type = 'api'
+  } else if (config.type === 'json') {
+    apiUrl.value = '使用素材库文件'
+    apiConfig.value.type = 'json'
+    materialList.value = config.materials || []
   }
 })
 

@@ -1,7 +1,7 @@
 <template>
   <section 
     class="vertical-scroll-block"
-    :style="`width: 100%; height: ${props.containerHeight}vw; vertical-align: top; overflow-y: auto; margin-top: -1px; pointer-events: visible`"
+    :style="`width: 100%; height: ${props.containerHeight}vw; vertical-align: top; overflow-y: auto; margin-top: -0.33vw; pointer-events: visible`"
   >
     <section style="overflow: hidden">
       <section style="max-width: 100%; vertical-align: middle">

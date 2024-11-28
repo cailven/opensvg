@@ -86,7 +86,7 @@ const handleHeightUpdate = (event) => {
   /* height: 160vw; */
   vertical-align: top;
   overflow-y: auto;
-  margin-top: -1px;
+  margin-top: -0.33vw;
   pointer-events: visible;
 }
 

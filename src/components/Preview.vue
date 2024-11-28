@@ -170,7 +170,7 @@ const generateCode = () => {
     // 特殊处理 svg 元素
     if (element.tagName.toLowerCase() === 'svg') {
       const originalStyle = element.getAttribute('style')
-      element.setAttribute('style', `${originalStyle}; margin-top: -1px`)
+      element.setAttribute('style', `${originalStyle}; margin-top: -0.33vw;`)
       element.removeAttribute('class')
     }
     

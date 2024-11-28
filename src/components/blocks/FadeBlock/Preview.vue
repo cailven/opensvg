@@ -84,7 +84,7 @@ const svgStyle = computed(() => {
   return {
     'background-image': url,
     'background-size': '100%',
-    'margin-top': '-1px',
+    'margin-top': '-0.33vw;',
   }
 })
 
