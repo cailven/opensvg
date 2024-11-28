@@ -1,6 +1,6 @@
 # WeChat Editor - OpenSVG 微信公众号SVG编辑器
 
-一个开源免费的微信公众号SVG编辑器,帮助运营人员快速制作微信公众号图文内容。如需使用，可以点击这里[https://cailven.github.io/opensvg/],教程在项目的wiki页里，建议在使用前仔细阅读[https://github.com/cailven/opensvg/wiki]
+一个开源免费的微信公众号SVG编辑器,帮助运营人员快速制作微信公众号图文内容。如需使用，[可以点击这里](https://cailven.github.io/opensvg/),[教程在项目的wiki页里，建议在使用前仔细阅读](https://github.com/cailven/opensvg/wiki)
 
 ![预览图](doc/preview.png)
 
