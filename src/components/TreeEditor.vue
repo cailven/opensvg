@@ -426,6 +426,7 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
   border-top: 1px solid #eee;
   background: #f0f0f0;
   border-radius: 8px;
+  overflow-y: auto;
 }
 
 .preview-thumb {
@@ -459,6 +460,7 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
   padding: 4px 8px;
   border-radius: 4px;
   margin: 2px 0;
+  margin-right: 10px;
 }
 
 :deep(.el-tree-node__content:hover) {

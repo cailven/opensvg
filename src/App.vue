@@ -464,7 +464,7 @@ html,body {
 .editor-container {
   flex: 1;
   display: grid;
-  grid-template-columns: 200px 700px 1fr;
+  grid-template-columns: 200px 600px 1fr;
   gap: 20px;
   padding: 0px;
   min-height: 0; /* 防止内容溢出 */
