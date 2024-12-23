@@ -22,5 +22,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/upload/, '/User/doUploadWx')
       }
     }
+  },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
   }
 })
