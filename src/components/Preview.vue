@@ -325,6 +325,7 @@ const topLevelComponents = computed(() => {
   height: 100%;
   overflow-y: auto;
   padding: 0px 0 20px;
+  line-height: 0;
 }
 
 /* 设备按钮 */
