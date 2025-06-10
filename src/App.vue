@@ -411,7 +411,7 @@ watch(
 )
 </script>
 
-<style>
+<style lang="less">
 html,body {
   margin: 0;
   height: 100%;
