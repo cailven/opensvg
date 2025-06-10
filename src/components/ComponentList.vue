@@ -108,6 +108,9 @@ const handleDragStart = (event, type) => {
 .component-list {
   padding: 8px;
   width: 180px;
+  height: calc(100vh - 110px);
+  overflow-y: auto;
+  font-size: 10px;
 }
 
 .component-category {

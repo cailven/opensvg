@@ -1,55 +1,70 @@
 <template>
   <div 
-    v-if="showPanel" 
-    class="material-sidebar"
-    :class="{ 'sidebar-collapsed': !showPanel }"
+    class="material-sidebar-container"
   >
-    <div class="sidebar-header">
-      <div class="header-top">
-        <h3>素材库</h3>
-        <el-button-group>
-          <el-button 
-            type="primary" 
-            size="small"
-            @click="handleUploadJson"
-          >
-            <el-icon><Upload /></el-icon>
-            导入素材库
-          </el-button>
-        </el-button-group>
-      </div>
-      <el-input
-        v-model="searchQuery"
-        placeholder="搜索素材"
-        prefix-icon="Search"
-        clearable
-        size="small"
-      />
-    </div>
-    
-    <div class="material-grid">
-      <div 
-        v-for="item in filteredMaterials" 
-        :key="item.url"
-        class="material-item"
-        draggable="true"
-        @dragstart="handleDragStart($event, item)"
-      >
-        <div
-          class="material-image"
-          @click="handleImageClick(item.url)"
-        >
-          <img 
-            :src="item.url" 
-            referrerpolicy="no-referrer"
-            class="material-img"
-          />
-          <div v-if="!item.url" class="image-placeholder">
-            <el-icon><Picture /></el-icon>
-          </div>
+    <div 
+      v-if="showPanel" 
+      class="material-sidebar"
+      :class="{ 'sidebar-collapsed': !showPanel }"
+    >
+      <div class="sidebar-header">
+        <div class="header-top">
+          <h3>素材库</h3>
+          <el-button-group>
+            <el-button 
+              type="primary" 
+              size="small"
+              @click="handleUploadJson"
+            >
+              <el-icon><Upload /></el-icon>
+              导入素材库
+            </el-button>
+          </el-button-group>
         </div>
-        <div class="material-name" :title="item.name">{{ item.name }}</div>
+        <el-input
+          v-model="searchQuery"
+          placeholder="搜索素材"
+          prefix-icon="Search"
+          clearable
+          size="small"
+        />
       </div>
+      
+      <div class="material-grid">
+        <div 
+          v-for="item in filteredMaterials" 
+          :key="item.url"
+          class="material-item"
+          draggable="true"
+          @dragstart="handleDragStart($event, item)"
+        >
+          <div
+            class="material-image"
+            @click="handleImageClick(item.url)"
+          >
+            <img 
+              :src="item.url" 
+              referrerpolicy="no-referrer"
+              class="material-img"
+            />
+            <div v-if="!item.url" class="image-placeholder">
+              <el-icon><Picture /></el-icon>
+            </div>
+          </div>
+          <div class="material-name" :title="item.name">{{ item.name }}</div>
+        </div>
+      </div>
+    </div>
+    <div 
+      class="sidebar-toggle"
+      @click="() => {
+        $emit('update:showPanel', !showPanel);
+      }"
+    >
+      <el-icon>
+        <ArrowRight v-if="showPanel" />
+        <ArrowLeft v-else />
+      </el-icon>
     </div>
   </div>
   <input 
@@ -63,13 +78,21 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Picture, Upload } from '@element-plus/icons-vue'
+import { Picture, Upload, ArrowRight, ArrowLeft } from '@element-plus/icons-vue'
 import { ElImageViewer, ElMessage } from 'element-plus'
 import { createVNode, render } from 'vue'
 import { useEditorStore } from '../stores/editor'
 
 const props = defineProps({
-  showPanel: Boolean,
+  showPanel: {
+    type: Boolean,
+    default: false,
+    watch(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        window.dispatchEvent(new Event('resize'))
+      }
+    }
+  },
   materials: {
     type: Array,
     default: () => []
@@ -164,6 +187,42 @@ const handleFileSelect = async (event) => {
 </script>
 
 <style scoped>
+.material-sidebar-container {
+  /* width: 200px; */
+  position: relative;
+  height: 100%;
+}
+
+.material-sidebar {
+  padding: 16px;
+  height: calc(100vh - 110px);
+  overflow-y: auto;
+  background: #fff;
+  border-right: 1px solid #e0e0e0;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  right: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 48px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.sidebar-toggle:hover {
+  background: #f5f7fa;
+}
+
 .material-image {
   width: 100%;
   height: 100px;

@@ -343,7 +343,7 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
 
 <style scoped>
 .tree-editor {
-  height: 100%;
+  height: calc(100vh - 120px);
   background: #fff;
   padding: 16px;
   overflow-y: auto;

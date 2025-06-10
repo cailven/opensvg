@@ -4,9 +4,7 @@
       <img src="/logo.png" alt="编辑器" />
     </div>
 
-    <div class="api-status">
-
-
+    <div class="api-status" v-if="false">
       <el-tag size="small" style="margin-left: 10px">
         <el-icon>
           <Connection />
@@ -35,11 +33,15 @@
 
     <div class="system-actions">
       <el-button-group>
-        <el-button type="info" link @click="openTutorial" :icon="Document">
+        <el-button type="primary" @click="handleNew" :icon="Plus">新建</el-button>
+        <el-button type="primary" @click="handleSave" :icon="Download">保存</el-button>
+        <el-button type="primary" @click="openProject" :icon="Upload">打开</el-button>
+
+        <el-button type="primary"  @click="openTutorial" :icon="Document">
           教程
         </el-button>
 
-        <el-button type="info" link @click="openGithub">
+        <el-button type="primary"  @click="openGithub">
           <template #icon>
             <svg viewBox="0 0 16 16" width="1em" height="1em">
               <path fill="currentColor"
@@ -48,11 +50,6 @@
           </template>
           源码
         </el-button>
-      </el-button-group>
-      <el-button-group>
-        <el-button type="primary" @click="handleNew" :icon="Plus">新建</el-button>
-        <el-button type="primary" @click="handleSave" :icon="Download">保存</el-button>
-        <el-button type="primary" @click="openProject" :icon="Upload">打开</el-button>
       </el-button-group>
 
       <el-divider direction="vertical" />
@@ -65,7 +62,6 @@
           </el-tag>
         </span>
       </div>
-      <el-divider direction="vertical" />
 
 
       <el-popover :visible="dropdownVisible" trigger="click" placement="bottom" @hide="dropdownVisible = false">
@@ -150,10 +146,10 @@ const openGithub = () => {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .system-header {
   height: 60px;
-  background: #fff;
+  background: #ffffff;
   padding: 0 20px;
   border-bottom: 1px solid #dcdfe6;
   display: flex;
@@ -161,5 +157,11 @@ const openGithub = () => {
   justify-content: space-between;
   grid-template-columns: auto 1fr auto;
   gap: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

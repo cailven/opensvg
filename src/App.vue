@@ -15,6 +15,7 @@
         :show-panel="showMaterialPanel"
         :materials="materialList"
         @update-materials="handleUpdateMaterials"
+        @update:show-panel="showMaterialPanel = $event"
       />
 
       <div class="editor-container" :class="{ 'with-sidebar': showMaterialPanel }">
@@ -698,6 +699,7 @@ html,body {
 }
 
 .main-content {
+  margin-top: 60px;
   flex: 1;
   display: flex;
   min-height: 0;
