@@ -104,14 +104,14 @@ const handleDragStart = (event, type) => {
 }
 </script>
 
-<style scoped>
+<style  scoped>
 .component-list {
-  padding: 10px;
-  width: 200px;
+  padding: 8px;
+  width: 180px;
 }
 
 .component-category {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .component-category:last-child {
@@ -119,7 +119,7 @@ const handleDragStart = (event, type) => {
 }
 
 .component-category :deep(.el-card__header) {
-  padding: 10px 15px;
+  padding: 8px 12px;
 }
 
 .category-header {
@@ -147,8 +147,8 @@ const handleDragStart = (event, type) => {
 .item-content {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px;
+  gap: 6px;
+  padding: 6px;
 }
 
 :deep(.el-space__item:last-child .component-item) {
@@ -156,7 +156,7 @@ const handleDragStart = (event, type) => {
 }
 
 .el-icon {
-  font-size: 16px;
+  font-size: 14px;
   color: #909399;
 }
 </style> 
