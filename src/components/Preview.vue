@@ -269,11 +269,12 @@ const topLevelComponents = computed(() => {
 .preview-container {
   position: relative;
   height: 100%;
-  background: #f0f2f5;
+  background: #cecece;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center; /* 改回居中对齐 */
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .device-wrapper {

@@ -106,15 +106,19 @@ const handleDragStart = (event, type) => {
 
 <style  scoped>
 .component-list {
-  padding: 8px;
-  width: 180px;
-  height: calc(100vh - 110px);
+  /* padding: 8px; */
+  /* width: 180px; */
+  height: calc(100vh - 60px);
   overflow-y: auto;
   font-size: 10px;
+  background-color: #fff;
 }
 
 .component-category {
-  margin-bottom: 12px;
+  margin-top: 20px;
+  margin-left: 30px;
+  margin-right: 30px;
+  margin-bottom: 0px;
 }
 
 .component-category:last-child {

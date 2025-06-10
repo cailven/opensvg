@@ -461,22 +461,24 @@ html,body {
   justify-content: space-between;
 }
 
-/* 调整内容区域，确保整体高度不超出视窗 */
+
+
 .editor-container {
   flex: 1;
   display: grid;
-  grid-template-columns: 200px 600px 1fr;
-  gap: 20px;
-  padding: 0px;
-  min-height: 0; /* 防止内容溢出 */
+  grid-template-columns: 250px 700px 1fr;
+  gap: 0px;
+  // padding: 20px;
+
+  transition: margin-left 0.3s;
 }
 
 .component-list {
-  border-right: 1px solid #eee;
+  // border-right: 1px solid #eee;
 }
 
 .tree-editor {
-  border-right: 1px solid #eee;
+  // border-right: 1px solid #eee;
 }
 
 .preview {
@@ -703,6 +705,7 @@ html,body {
   flex: 1;
   display: flex;
   min-height: 0;
+  background-color: #d8d8d8;
 }
 
 .material-sidebar {
@@ -768,14 +771,7 @@ html,body {
   right: 0;
 }
 
-.editor-container {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 200px 700px 1fr;
-  gap: 20px;
-  padding: 20px;
-  transition: margin-left 0.3s;
-}
+
 
 .editor-container.with-sidebar {
   margin-left: 0;

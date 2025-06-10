@@ -343,9 +343,9 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
 
 <style scoped>
 .tree-editor {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 60px);
   background: #fff;
-  padding: 16px;
+  /* padding: 16px; */
   overflow-y: auto;
   display: flex;
 }
@@ -355,6 +355,8 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
 }
 
 .empty-tip {
+  width: 100%;
+  height:calc(100vh - 350px);
   margin: 20px;
   padding: 40px;
   text-align: center;
@@ -421,12 +423,14 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
 }
 
 .editor-panel {
-  margin-top: 16px;
+  /* margin-top: 16px; */
   padding: 16px;
   border-top: 1px solid #eee;
   background: #f0f0f0;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   overflow-y: auto;
+  width: 100%;
+  
 }
 
 .preview-thumb {

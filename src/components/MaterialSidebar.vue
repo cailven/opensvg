@@ -195,7 +195,7 @@ const handleFileSelect = async (event) => {
 
 .material-sidebar {
   padding: 16px;
-  height: calc(100vh - 110px);
+  height: calc(100vh - 92px);
   overflow-y: auto;
   background: #fff;
   border-right: 1px solid #e0e0e0;
