@@ -16,6 +16,8 @@
           class="component-item container-item"
           shadow="hover"
           draggable="true"
+        
+         
           @dragstart="handleDragStart($event, type)"
         >
           <div class="item-content">
@@ -41,7 +43,7 @@
         <el-card
           v-for="(config, type) in normalComponents"
           :key="type"
-          class="component-item"
+          class="component-item "
           shadow="hover"
           draggable="true"
           @dragstart="handleDragStart($event, type)"
@@ -156,6 +158,7 @@ const handleDragStart = (event, type) => {
   align-items: center;
   gap: 6px;
   padding: 6px;
+  width: 90px;
 }
 
 :deep(.el-space__item:last-child .component-item) {

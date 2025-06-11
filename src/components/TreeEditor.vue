@@ -351,7 +351,8 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
 }
 
 .tree-editor-container{
-  width: 300px;
+  width: 280px;
+  padding-left: 20px;
 }
 
 .empty-tip {
@@ -400,7 +401,7 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px;
+  /* padding: 8px; */
 }
 
 .node-content {
@@ -430,6 +431,7 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
   /* border-radius: 8px; */
   overflow-y: auto;
   width: 100%;
+  font-size: 12px;
   
 }
 
@@ -457,14 +459,22 @@ const handleAllowDrop = (draggingNode, dropNode, type) => {
 }
 
 .node-label {
+  width: 80px;
+  text-align: center;
+  overflow-x: auto;
+font-size: 10px;
   flex: 1;
+  margin-right: 10px;
 }
 
 :deep(.el-tree-node__content) {
   padding: 4px 8px;
   border-radius: 4px;
-  margin: 2px 0;
-  margin-right: 10px;
+  margin-right: 20px;
+}
+
+:deep(.el-tree-node__content>.el-tree-node__expand-icon) {
+  padding: 0px;
 }
 
 :deep(.el-tree-node__content:hover) {

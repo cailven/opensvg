@@ -418,6 +418,10 @@ html,body {
   height: 100%;
 }
 
+svg {
+ background-size: 100% 100%;
+}
+
 .app-container {
   height: 100vh;
   display: flex;

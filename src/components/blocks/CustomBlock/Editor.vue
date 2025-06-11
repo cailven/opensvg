@@ -5,20 +5,42 @@
     </div>
     
     <div class="editor-content">
-      <!-- HTML文件上传区域 -->
-      <div class="html-upload-section">
-        <h4>上传HTML文件</h4>
-        <input 
-          type="file" 
-          ref="fileInput"
-          accept=".html"
-          @change="handleHtmlUpload"
-          style="display: none"
-        >
-        <button @click="triggerFileUpload" class="upload-btn">
-          选择HTML文件
-        </button>
-      </div>
+      <el-tabs v-model="activeTab">
+        <!-- HTML文件上传标签页 -->
+        <el-tab-pane label="上传HTML" name="upload">
+          <div class="html-upload-section">
+            <input 
+              type="file" 
+              ref="fileInput"
+              accept=".html"
+              @change="handleHtmlUpload"
+              style="display: none"
+            >
+            <button @click="triggerFileUpload" class="upload-btn">
+              选择HTML文件
+            </button>
+          </div>
+        </el-tab-pane>
+
+        <!-- HTML文本输入标签页 -->
+        <el-tab-pane label="输入HTML" name="input">
+          <div class="html-input-section">
+            <el-input
+              v-model="htmlInputContent"
+              type="textarea"
+              :rows="10"
+              placeholder="请输入HTML内容"
+            />
+            <el-button 
+              type="primary" 
+              @click="handleHtmlInput" 
+              class="submit-btn"
+            >
+              确定
+            </el-button>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
 
       <!-- 图片替换区域 -->
       <div v-if="imageNodes.length" class="images-section">
@@ -57,9 +79,50 @@ const props = defineProps({
 
 const editorStore = useEditorStore()
 const fileInput = ref(null)
+const activeTab = ref('upload')
+const htmlInputContent = ref('')
 
 const triggerFileUpload = () => {
   fileInput.value?.click()
+}
+
+const parseHtmlContent = (htmlContent) => {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(htmlContent, 'text/html')
+  
+  // 查找所有带有背景图片的SVG节点和img节点
+  const svgNodes = doc.querySelectorAll('svg[style*="background-image"]')
+  const imgNodes = doc.querySelectorAll('img[src]')
+  
+  const imageNodes = []
+  
+  // 处理SVG背景图片
+  svgNodes.forEach(svg => {
+    const style = svg.getAttribute('style')
+    const match = style.match(/background-image:\s*url\(['"]?([^'"]+)['"]?\)/)
+    if (match) {
+      imageNodes.push({
+        type: 'svg',
+        imageUrl: match[1],
+        originalNode: svg.outerHTML
+      })
+    }
+  })
+  
+  // 处理img标签
+  imgNodes.forEach(img => {
+    imageNodes.push({
+      type: 'img',
+      imageUrl: img.src,
+      originalNode: img.outerHTML
+    })
+  })
+
+  // 更新组件属性
+  editorStore.updateComponentProps(props.componentId, {
+    htmlContent: doc.body.innerHTML,
+    imageNodes
+  })
 }
 
 const handleHtmlUpload = (event) => {
@@ -68,45 +131,17 @@ const handleHtmlUpload = (event) => {
 
   const reader = new FileReader()
   reader.onload = (e) => {
-    const htmlContent = e.target.result
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(htmlContent, 'text/html')
-    
-    // 查找所有带有背景图片的SVG节点和img节点
-    const svgNodes = doc.querySelectorAll('svg[style*="background-image"]')
-    const imgNodes = doc.querySelectorAll('img[src]')
-    
-    const imageNodes = []
-    
-    // 处理SVG背景图片
-    svgNodes.forEach(svg => {
-      const style = svg.getAttribute('style')
-      const match = style.match(/background-image:\s*url\(['"]?([^'"]+)['"]?\)/)
-      if (match) {
-        imageNodes.push({
-          type: 'svg',
-          imageUrl: match[1],
-          originalNode: svg.outerHTML
-        })
-      }
-    })
-    
-    // 处理img标签
-    imgNodes.forEach(img => {
-      imageNodes.push({
-        type: 'img',
-        imageUrl: img.src,
-        originalNode: img.outerHTML
-      })
-    })
-
-    // 更新组件属性
-    editorStore.updateComponentProps(props.componentId, {
-      htmlContent: doc.body.innerHTML,
-      imageNodes
-    })
+    parseHtmlContent(e.target.result)
   }
   reader.readAsText(file)
+}
+
+const handleHtmlInput = () => {
+  if (!htmlInputContent.value.trim()) {
+    ElMessage.warning('请输入HTML内容')
+    return
+  }
+  parseHtmlContent(htmlInputContent.value)
 }
 
 const handleImageUpdate = (index, { url }) => {
@@ -142,7 +177,12 @@ const handleImageUpdate = (index, { url }) => {
   margin-bottom: 20px;
 }
 
-.upload-btn {
+.html-input-section {
+  margin-bottom: 20px;
+}
+
+.upload-btn, .submit-btn {
+  margin-top: 16px;
   padding: 8px 16px;
   background-color: #1890ff;
   color: white;
@@ -151,7 +191,7 @@ const handleImageUpdate = (index, { url }) => {
   cursor: pointer;
 }
 
-.upload-btn:hover {
+.upload-btn:hover, .submit-btn:hover {
   background-color: #40a9ff;
 }
 
