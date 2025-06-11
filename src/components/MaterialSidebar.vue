@@ -14,10 +14,19 @@
             <el-button 
               type="primary" 
               size="small"
+              @click="ClearUploadJson"
+            >
+            
+              清空
+            </el-button>
+
+            <el-button 
+              type="primary" 
+              size="small"
               @click="handleUploadJson"
             >
-              <el-icon><Upload /></el-icon>
-              导入素材库
+             
+              导入
             </el-button>
           </el-button-group>
         </div>
@@ -29,8 +38,27 @@
           size="small"
         />
       </div>
+
+      <div class="empty-material" v-if="filteredMaterials.length === 0">
+        无素材
+     
+
+
+
+        <el-button 
+              type="primary" 
+              size="small"
+              @click="linkToWxuploadChromeWiget"
+
+              style="margin-top: 10px;"
+            >
+             
+              学习如何导入
+            </el-button>
+
+      </div>
       
-      <div class="material-grid">
+      <div class="material-grid" v-else>
         <div 
           v-for="item in filteredMaterials" 
           :key="item.url"
@@ -120,6 +148,10 @@ const getNoReferrerImageUrl = async (url) => {
   })
 }
 
+const linkToWxuploadChromeWiget= async (event, material) => {
+  window.open('https://github.com/cailven/wxuploadChromeWiget', '_blank')
+}
+
 const handleDragStart = async (event, material) => {
   event.dataTransfer.setData('dragType', 'material')
   event.dataTransfer.setData('material', JSON.stringify(material))
@@ -148,6 +180,10 @@ const emit = defineEmits(['fileSelect', 'updateMaterials'])
 
 const handleUploadJson = () => {
   fileInput.value?.click()
+}
+
+const ClearUploadJson = () => {
+  emit('updateMaterials', [])
 }
 
 const editorStore = useEditorStore()
@@ -186,7 +222,20 @@ const handleFileSelect = async (event) => {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+
+.empty-material{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  
+  color: #999;
+}
+
 .material-sidebar-container {
   /* width: 200px; */
   position: relative;
@@ -221,6 +270,11 @@ const handleFileSelect = async (event) => {
 
 .sidebar-toggle:hover {
   background: #f5f7fa;
+}
+
+.material-item {
+  width: 100px;
+  height: 100px;
 }
 
 .material-image {
